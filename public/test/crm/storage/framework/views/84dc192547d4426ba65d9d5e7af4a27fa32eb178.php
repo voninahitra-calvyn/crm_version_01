@@ -1,0 +1,1 @@
+<?php /**PATH /home/clients/452225fdd1f675c63558ad49feb51168/crm/public/test/crm/resources/views/auth/inscription.blade.php ENDPATH**/ ?>

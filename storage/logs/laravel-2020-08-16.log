@@ -1,0 +1,20 @@
+[2020-08-16 09:41:28] local.ERROR: Class 'MongoDB\Driver\Manager' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'MongoDB\\Driver\\Manager' not found at C:\\wamp64\\www\\crm\\vendor\\mongodb\\mongodb\\src\\Client.php:116)
+[stacktrace]
+#0 C:\\wamp64\\www\\crm\\vendor\\jenssegers\\mongodb\\src\\Jenssegers\\Mongodb\\Connection.php(141): MongoDB\\Client->__construct('mongodb://127.0...', Array, Array)
+#1 C:\\wamp64\\www\\crm\\vendor\\jenssegers\\mongodb\\src\\Jenssegers\\Mongodb\\Connection.php(38): Jenssegers\\Mongodb\\Connection->createConnection('mongodb://127.0...', Array, Array)
+#2 C:\\wamp64\\www\\crm\\vendor\\jenssegers\\mongodb\\src\\Jenssegers\\Mongodb\\MongodbServiceProvider.php(30): Jenssegers\\Mongodb\\Connection->__construct(Array)
+#3 [internal function]: Jenssegers\\Mongodb\\MongodbServiceProvider->Jenssegers\\Mongodb\\{closure}(Array, 'mongodb')
+#4 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\DatabaseManager.php(120): call_user_func(Object(Closure), Array, 'mongodb')
+#5 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\DatabaseManager.php(85): Illuminate\\Database\\DatabaseManager->makeConnection('mongodb')
+#6 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(237): Illuminate\\Database\\DatabaseManager->connection('mongodb')
+#7 C:\\wamp64\\www\\crm\\vendor\\jenssegers\\mongodb\\src\\Jenssegers\\Mongodb\\MongodbQueueServiceProvider.php(17): Illuminate\\Support\\Facades\\Facade::__callStatic('connection', Array)
+#8 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\QueueServiceProvider.php(32): Jenssegers\\Mongodb\\MongodbQueueServiceProvider->registerFailedJobServices()
+#9 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(597): Illuminate\\Queue\\QueueServiceProvider->register()
+#10 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(731): Illuminate\\Foundation\\Application->register(Object(Jenssegers\\Mongodb\\MongodbQueueServiceProvider))
+#11 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(711): Illuminate\\Foundation\\Application->registerDeferredProvider('Jenssegers\\\\Mong...', 'queue')
+#12 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(687): Illuminate\\Foundation\\Application->loadDeferredProvider('queue')
+#13 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(325): Illuminate\\Foundation\\Application->loadDeferredProviders()
+#14 C:\\wamp64\\www\\crm\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(131): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#15 C:\\wamp64\\www\\crm\\artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 {main}
+"} 
