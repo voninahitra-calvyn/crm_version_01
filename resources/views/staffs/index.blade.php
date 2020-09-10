@@ -80,6 +80,7 @@
 									<th>Email</th>
 									<th>Statut</th>
 									<th>Note</th>
+									<th>Etat</th>
 								</tr>
 								</thead>
 							<tbody>
@@ -93,7 +94,7 @@
 										</form>
 									</td>
 									<td>
-										<form  action = "{{route('staffs.destroy', [$staff])}}" method="post" class="">
+										<form  action = "{{route('staffs.destroy', [$staff])}}" method="post" class="" onsubmit="return confirmDelete();">
 											@csrf
 											@method('DELETE')
 											<button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-trash"></i> Supprimer</button>
@@ -108,6 +109,7 @@
 									<td>{{$staff->email}}</td>
 									<td>{{$staff->statut}}</td>
 									<td>{{$staff->note}}</td>
+									<td>{{$staff->etat ? $staff->etat : 'Actif'}}</td>
 								</tr>
 								@endforeach 
 

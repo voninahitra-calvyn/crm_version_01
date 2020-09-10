@@ -57,6 +57,7 @@
 					<th>Email</th>
 					<th>Statut</th>
 					<th>Note</th>
+					<th>Etat</th>
 				</tr>
 					</thead>
 					<tbody>
@@ -70,7 +71,7 @@
 						</form>
 					</td>
 					<td>
-						<form  action = "{{route('clients.suppcompte', [$compte])}}" method="post" class="">
+						<form  action = "{{route('clients.suppcompte', [$compte])}}" method="post" class=""  onsubmit="return confirmDelete();">
 							@csrf
 							@method('GET')
 							<button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-trash"></i> Supprimer</button>
@@ -95,6 +96,7 @@
 					<td>{{$compte->email}}</td>
 					<td>{{$compte->statut}}</td>
 					<td>{{$compte->note}}</td>
+					<td>{{$compte->etat ? $compte->etat : 'Actif'}}</td>
 				</tr>
 				@endforeach 
 					</tbody>

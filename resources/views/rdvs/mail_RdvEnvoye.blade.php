@@ -1,4 +1,4 @@
-Bonjour {{ $clientMail->prenom }} {{ $clientMail->nom }}, 
+Bonjour {{ $clientMail}},
 <br/>
 Nous venons de prendre un nouveau rendez-vous.
 <br/>

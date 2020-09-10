@@ -7847,7 +7847,7 @@ class RdvController extends Controller
 			'question_4' => $request->get('question_4'),  
 			'question_5' => $request->get('question_5')			
        ]);
-	   
+	//	dd($rdv);
        $rdv->save();
 	   
        
@@ -7907,13 +7907,21 @@ class RdvController extends Controller
     {
 		// $hashids = new Hashids('LSPlusaltUser', 7);
 		// $id = $hashids->decode($idencode)[0];
-        $rdv = Rdv::findOrFail($idencode);
-        $client = Client::findOrFail($rdv->client_id);
-        $clientComResp = User::findOrFail($rdv->compte_id);
-		// $compte = $rdv->client_id; //5e510d119b35a7c1eb875ed8
-		// $compte = $client->_id; //5e510d119b35a7c1eb875ed8
+		$rdv = Rdv::findOrFail($idencode);
+		/*$rdv->client_id = "5f08630ebf77b30c37437f32";
+		$rdv->save();
+		dd($rdv);
+		$clientComResp = User::findOrFail($rdv->compte_id);
+		dd($clientComResp);*/
+		$client	= Client::findOrFail($rdv->client_id);
+		$clientComResp = User::findOrFail($rdv->compte_id);
+        $clientCom = User::where('statut','Commercial')
+                            ->orWhere('statut','Responsable')
+                            ->get();
 		$compte = User::where('client_id', '=', $client->_id)
             ->get();
+		//dd($rdv);
+		$centreAll = Centreappel::all();
 		// $client = $compte->client_id;
 		$statut_user = auth()->user()->statut;
 		if ($statut_user=='Superviseur' || $statut_user=='Agent'){
@@ -7922,9 +7930,14 @@ class RdvController extends Controller
 		}else{
 			$nomsocieteCentreappels = 'Groupe Administration';
 		}
-       return view('rdvs.edit', compact('rdv','client','clientComResp','compte','nomsocieteCentreappels'));
+       return view('rdvs.edit', compact('rdv','client','clientComResp','clientCom','compte',
+           'nomsocieteCentreappels','centreAll'));
     }
-	
+
+    public function getAgent($id){
+        $user = User::where('centreappel_id', $id)->get();
+        return response()->json($user);
+    }
     public function details($idencode)
     {
 		// $hashids = new Hashids('LSPlusaltUser', 7);
@@ -7948,6 +7961,7 @@ class RdvController extends Controller
      */
     public function update(Request $request, $idencode)
     {
+
 		$isAudio=$request->get('is_audio');
 		// $Audio=$request->get('hidden_audio');
 		if($isAudio=='Oui'){
@@ -7988,23 +8002,25 @@ class RdvController extends Controller
 			}else{
 				$id_groupe = auth()->user()->centreappel_id;
 			}  */
-			
 			$statut_user = auth()->user()->statut;
 			$rdv = Rdv::find($idencode);
-			$client = Client::findOrFail($rdv->client_id);
-			// $compte = User::findOrFail($rdv->compte_id);
+            $idClient = $request->get('client_id');
+            $client = Client::findOrFail($idClient);
+           /* dd($client);*/
+            // $compte = User::findOrFail($rdv->compte_id);
 			//*********** A COMMENTER APRES MODIF***************
 			$rdv->client_nompriv = $request->get('client_nompriv');
 			$rdv->client_prenompriv = $request->get('client_prenompriv');
-			// $rdv->user_nom = $request->get('user_nom');  //cocomodif
+            $rdv->client_id = $idClient;
+            // $rdv->user_nom = $request->get('user_nom');  //cocomodif
 			// $rdv->user_prenom = $request->get('user_prenom');  //cocomodif
 			// $rdv->statut = 'Rendez-vous brut';  
-			// $rdv->id_groupe = $id_groupe; 
-			// $rdv->id_groupe = $id_centreappel; 
+			$rdv->id_groupe = $request->get('id_groupe');
+			// $rdv->id_groupe = $id_centreappel;
 			$rdv->client_societe = $request->get('client_societe'); 
 			// $rdv->centreappel_societe = $request->get('centreappel_societe');  //cocomodif
-			$rdv->responsableagent = $request->get('responsableagent'); 
-			// $rdv->client_id = $request->get('client_id'); 
+	
+			//$rdv->responsableagent = $request->get('responsableagent');
 			// $rdv->typerdv = $request->get('typerdv');
 			if ($statut_user<>'Superviseur' && $statut_user<>'Agent'){
 				$rdv->statut = $request->get('statut'); 
@@ -8022,9 +8038,34 @@ class RdvController extends Controller
 			}elseif ($request->get('statut')=='Rendez-vous validé'){
 				$couleur_rdv = '#063';	
 			}
+			//update rdv select
+			if($request->get('responsableagent')<>'' or $request->get('responsableagent')<>null){
+				$resp = $request->get('responsableagent');
+			$explod = explode(",", $resp);
+				if($explod[0]<>'' || $explod[0]<>null){
+				    $userPrenom = isset($explod[1])?$explod[1]:'' ;
+				    $userNom = isset($explod[2])?$explod[2]:'' ;
+					$rdv->responsableagent = $userPrenom.' '.$userNom;
+					$rdv->user_id = $explod[0];
+					$rdv->user_prenom = $userPrenom;
+					$rdv->user_nom = $userNom;
+				}
+			}
+			if (!is_null($request->get('cli'))){
+                $rdv->cli = $request->get('cli');
+            }
+            if($request->get('centreappel_societe')<>'' or $request->get('centreappel_societe')<>null){
+                $callSociete = $request->get('centreappel_societe');
+                $explodCall = explode(",",$callSociete);
+                if ($explodCall[0]<>'' || $explodCall[0]<>null){
+                    $rdv->centreappel_societe = end($explodCall);
+                    $rdv->id_groupe = $request->get('id_groupe');
+                }
+            }
+            if (!is_null($request->get('typerdv'))){
+                $rdv->typerdv = $request->get('typerdv');
+            }
 
-			
-			
 			$rdv->nom = $request->get('nom'); 
 			$rdv->prenom = $request->get('prenom'); 
 			$rdv->adresse = $request->get('adresse'); 
@@ -8065,8 +8106,7 @@ class RdvController extends Controller
 			$rdv->question_4 = $request->get('question_4'); 
 			$rdv->question_5 = $request->get('question_5');	
 			$rdv->couleur_rdv = $couleur_rdv;	
-			$rdv->save(); 
-			
+			$rdv->save();
 			// $rdv->update($request->all());
 			
 			//**** ENVOIE MAIL **************************
@@ -8226,7 +8266,7 @@ class RdvController extends Controller
 			$titre .= isset($composition_foyerA)?'<br/><b>Composition foyer : </b>'.$composition_foyer : '';
 			$titre .= isset($noteA)?'<br/><b>Note : </b>'.$note: '';
 
-				
+			
 			$evenement = Event::where('_idRdv', '=', $idencode)->first();
 			if(isset($evenement)){
 				if (($statut=='Rendez-vous brut') || ($statut=='Rendez-vous refusé') || ($statut=='Rendez-vous Réception d’appels brut') || ($statut=='Rendez-vous Réception d’appels envoyé') || ($statut=='Rendez-vous Demande de devis brut') || ($statut=='Rendez-vous Demande de devis envoyé')){
@@ -8245,6 +8285,7 @@ class RdvController extends Controller
 					$evenement->save();
 				}
 			}else{
+
 				if (($statut=='Rendez-vous envoyé') || ($statut=='Rendez-vous confirmé') || ($statut=='Rendez-vous annulé') || ($statut=='Rendez-vous en attente') || ($statut=='Rendez-vous validé')){
 					$agenda = new Event([
 						'_idRdv' => $idencode,  
@@ -8261,9 +8302,11 @@ class RdvController extends Controller
 					$agenda->save();
 				}
 			}
+		if($request->get('ismailEnvoi')){
 			
 			$responsableMail = User::findOrFail($rdv->user_id);
-			$clientMail = User::findOrFail($rdv->compte_id);
+			//$clientMail = User::findOrFail($rdv->compte_id);
+			$clientMail =$rdv->client_prenompriv.' '.$rdv->client_nompriv;
 			$prenom = $request->get('user_prenom');
 			$id_staff = auth()->user()->_id;
 			$staff = User::findOrFail($id_staff);
@@ -8355,6 +8398,7 @@ class RdvController extends Controller
 						->subject('Le rendez-vous référence : '.$reference.' est validé');
 				}); */		
 			}
+		}
 
 		  
 		  // return view('rdvs.mail', compact('rdv','client'));
@@ -8386,10 +8430,15 @@ class RdvController extends Controller
 		// $rdv->delete();
 		
         $rdv = Rdv::findOrFail($id);
-		$rdv->delete(); 
+
 		
 		$evenement = Event::where('_idRdv', '=', $id)->first();
-		$evenement->delete(); 
+        if ($evenement == null){
+            $rdv->delete();
+        }else{
+            $evenement->delete();
+            $rdv->delete();
+        }
 
 		return redirect('/rendez-vous/tout')->with('success', 'Rdv supprimée!');
     }    

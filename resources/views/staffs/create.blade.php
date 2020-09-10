@@ -90,7 +90,18 @@
 							  <textarea class="form-control" rows="3" name="note" id="note" placeholder="Note"></textarea>
 							</div>
 						</div>
-						
+						@if (Auth::user()->statut == 'Administrateur')
+							<div class="form-group">
+								<label for="etat" class="col-sm-2 control-label">Etat : </label>
+								<div class="col-sm-10">
+									<!-- <select class="form-control select2" multiple="multiple" name="typerdv[]" id="typerdv" style="width: 100%;" > -->
+									<select class="form-control select2" name="etat" id="etat" style="width: 100%;" required>
+										<option value="Actif">Activé</option>
+										<option value="Inactif">Désactivé</option>
+									</select>
+								</div>
+							</div>
+						@endif
 						<div class="form-group">
 							<div class="col-sm-offset-1 col-sm-10">
 								<a href="javascript:history.go(-1)" class="btn btn-default">Annuler</a>

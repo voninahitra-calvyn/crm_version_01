@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Home;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -115,4 +116,78 @@ class LoginController extends Controller
             $request->has('remember')
         );
     }
+
+    public function login(Request $request)
+    {
+        $home = Home::all();
+        if($home->count()) {
+            // $note1=1;
+            // $note2=2;
+            foreach ($home as $key => $value) {
+                $_id=$value->_id;
+                $note1=$value->note1;
+                $note2=$value->note2;
+            }
+        }else{
+            $_id=null;
+            $note1=null;
+            $note2=null;
+        }
+
+        $input = $request->all();
+        $this->validate($request,[
+           'email' => 'required',
+           'password' => 'required',
+        ]);
+        $fieldType = filter_var($request->email,FILTER_VALIDATE_EMAIL)? 'email' : 'username';
+        if (auth()->attempt([
+            $fieldType => $input['email'],
+            'password' =>$input['password']
+        ])){
+            if (auth()->user()->etat=="Inactif"){
+                $errorInactif = "inactif";
+                return view('auth.connexion', compact('errorInactif'));
+            }
+            return view('home.index', compact('home','_id','note1','note2'));        }
+        else{
+            $error1="error";
+
+            return view('auth.connexion', compact('error1'));
+           /* return response()->json([
+                'error' => 'Credentials do not match our database.'
+            ], 401);
+            return redirect()->route('login')
+                        ->with('error',"Identifiants invalid");*/
+        }
+    }
+    /*
+ public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        if ($this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return $this->sendLockoutResponse($request);
+        }
+
+        if($this->guard()->validate($this->credentials($request))) {
+            if(Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_activated' => 1])) {
+                // return redirect()->intended('dashboard');
+            }  else {
+                $this->incrementLoginAttempts($request);
+                return response()->json([
+                    'error' => 'This account is not activated.'
+                ], 401);
+            }
+        } else {
+            // dd('ok');
+            $this->incrementLoginAttempts($request);
+            return response()->json([
+                'error' => 'Credentials do not match our database.'
+            ], 401);
+        }
+    }
+*/
+
 }

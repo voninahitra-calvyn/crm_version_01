@@ -1,6 +1,6 @@
 <!-- <div style="color:red; font-size:14pt;font-family:Arial;"> -->
 <div style="color:green;">
-Bonjour {{ $clientMail->prenom }} {{ $clientMail->nom }}, 
+Bonjour {{ $clientMail}},
 <br/>
 Le rendez-vous portant la référence {{ $reference }} est confirmé.
 <br/>

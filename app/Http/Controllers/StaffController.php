@@ -117,7 +117,8 @@ class StaffController extends Controller
 			'email' => $request->get('email'),        
 			'password' => bcrypt($request->get('password')),        
 			'statut' => $request->get('statut'),      
-			'note' => $request->get('note')      
+			'note' => $request->get('note'),
+			'etat' => $request->get('etat')
 		]);
 	   
 	   $staff->save();
@@ -182,7 +183,8 @@ class StaffController extends Controller
 		$staff->email = $request->get('email');
         $staff->statut = $request->get('statut');
         $staff->note = $request->get('note');
-        $staff->save(); 
+        $staff->etat = $request->get('etat');
+        $staff->save();
 		
 		
 		// $staff->update($request->all());

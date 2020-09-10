@@ -81,6 +81,7 @@
 						<th>Pays</th>
 						<th>Téléphone</th>
 						<th>Email</th>
+						<th>Etat</th>
 						<!-- <th>Note</th> -->
 					</tr>
 								</thead>
@@ -95,7 +96,7 @@
 							</form>
 						</td>
 						<td>
-							<form  action = "{{route('centreappels.destroy', $centreappel->id)}}" method="post" class="">
+							<form  action = "{{route('centreappels.destroy', $centreappel->id)}}" method="post" class="" onsubmit="return confirmDelete();">
 								@csrf
 								@method('DELETE')
 								<button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-trash"></i> Supprimer</button>
@@ -119,6 +120,7 @@
 						<td>{{$centreappel->pays}}</td>
 						<td>{{$centreappel->telephone}}</td>
 						<td>{{$centreappel->email}}</td>
+						<td>{{$centreappel->etat ? $centreappel->etat: 'Actif'}}</td>
 						<!-- <td>{{$centreappel->note}}</td> -->
 					</tr>
 					@endforeach	

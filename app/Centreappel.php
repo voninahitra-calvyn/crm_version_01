@@ -20,7 +20,8 @@ class Centreappel extends Eloquent //MongoDB
 	
     //
     protected $fillable = [
-        'societe', 'adresse', 'cp', 'ville', 'pays', 'telephone', 'email', 'effectif', 'horaireprod', 'campagnefavorite', 'noteconfidentielle', 'note'
+        'societe', 'adresse', 'cp', 'ville', 'pays', 'telephone', 'email', 'effectif', 'horaireprod',
+        'campagnefavorite', 'noteconfidentielle', 'note', 'etat'
     ];
 	
     /**

@@ -18,7 +18,7 @@ class Client extends Eloquent //MongoDB
     protected $primarykey = "_id";
 	
     protected $fillable = [
-        'societe', 'societe2', 'adresse', 'cp', 'ville', 'pays', 'telephone', 'email', 'service', 'note', 'client_id', 'compte_id'
+        'societe', 'societe2', 'adresse', 'cp', 'ville', 'pays', 'telephone', 'email', 'service', 'note','etat', 'client_id', 'compte_id'
     ];
 	
     /**
@@ -28,5 +28,5 @@ class Client extends Eloquent //MongoDB
     {
         return $this->hasMany(User::class, 'users');
     }
-	
+
 }

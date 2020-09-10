@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Day;
 use Illuminate\Support\Facades\Crypt;
 // use App\Hashids\Hashids;
 use Hashids\Hashids;
@@ -67,7 +68,8 @@ class ClientController extends Controller
            'telephone' => $request->get('telephone'),        
            'email' => $request->get('email'),      
            'service' => $request->get('service'),      
-           'note' => $request->get('note')      
+           'note' => $request->get('note'),
+           'etat' => $request->get('etat')?$request->get('etat'):'Actif',
        ]);
 	   
        $client->save();
@@ -114,7 +116,11 @@ class ClientController extends Controller
         $request->validate([
           'societe'=>'required'
         ]);
-		
+
+        $statut_user = auth()->user()->statut;
+        if ($statut_user == 'Administrateur' || $statut_user == 'Staff'){
+            $user = User::where('centreappel_id',$idencode)->update(['etat'=>$request->get('etat')]);
+        }
         $client = Client::find($idencode);;
         $client->societe2 = $request->get('societe2');
         $client->societe = $request->get('societe');
@@ -126,6 +132,9 @@ class ClientController extends Controller
         $client->email = $request->get('email');
         $client->service = $request->get('service');
         $client->note = $request->get('note');
+        if ($statut_user == 'Administrateur' || $statut_user == 'Staff') {
+            $client->etat = $request->get('etat');
+        }
         $client->save();
 
         return redirect('/clients')->with('success', 'Client modifiée!');
@@ -194,7 +203,8 @@ class ClientController extends Controller
            'email' => $request->get('email'),      
 			'password' => bcrypt($request->get('password')),   
            'statut' => $request->get('statut'),      
-           'note' => $request->get('note')      
+           'note' => $request->get('note'),
+           'etat' => $request->get('etat')?$request->get('etat'):'Actif'
        ]);
 	   
        $compte->save();
@@ -210,11 +220,12 @@ class ClientController extends Controller
 		// $hashidsClient = new Hashids('LSPlusaltClient', 7);
 		// $id = $hashidsUser->decode($idencode)[0];
         $compte = User::findOrFail($idencode);
-		// $client = $compte->client_id;
 		$client = $compte->client_id;
         $cli = Client::findOrFail($client);
 		$campagne = $cli->societe2;
-		return view('clients.compte.edit', compact('client','compte','campagne'));
+		$index = 1;
+		$days = Day::all();
+		return view('clients.compte.edit', compact('client','compte','campagne','index','days'));
     }
 
     public function rendezvous($idencode)
@@ -271,6 +282,14 @@ class ClientController extends Controller
 		}	
         $compte->statut = $request->get('statut');
         $compte->note = $request->get('note');
+        if ($request->get('etat')) {
+            $compte->etat = $request->get('etat');
+        }
+        $compte->plage_horaire = [
+            'Lundi'=>['plage1'=>['18:00', '20:00']],
+            'Mardi'=>['plage1'=>['18:00', '20:00'], 'plage2'=>['21:00', '00:23']],
+            'Mercredi'=>['plage1'=>['18:00', '20:00']]
+        ];
         $compte->save();
  
 		

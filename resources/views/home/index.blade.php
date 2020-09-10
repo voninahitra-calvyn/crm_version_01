@@ -13,7 +13,8 @@
 @section('main-content')
 
     <div class="accueil-page">
-        <h3 class="headline text-red">Bonjour {{ Auth::user()->prenom }} {{ Auth::user()->nom }}!</h3>
+        <h3 class="headline text-red">Bonjour {{ Auth::user()->nom }} <span style="text-transform: uppercase">{{ Auth::user()->prenom }} </span>,
+			il est <span id="time"></span>.</h3>
     </div>
 	<form class="form-horizontal @if ($_id <> null) hidden @endif" method="POST" action="{{ route('home.store') }}">
 	

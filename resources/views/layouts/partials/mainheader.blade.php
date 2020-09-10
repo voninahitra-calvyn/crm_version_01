@@ -11,7 +11,7 @@
         <div class="collapse navbar-collapse mobile-menu" id="navbar-collapse">
 
 			<ul class="nav navbar-nav">
-                 <li @if (\Request::is('home*')) class="active" @endif><a href="{{ url('/home') }}">Index</a></li>
+                 <li @if (\Request::is('home*')) class="active" @endif><a href="{{ url('/home') }}">ACCUEIL</a></li>
 			   @if (Auth::guest())
                     <!-- <li><a href="{{ url('/register') }}">{{ trans('adminlte_lang::message.register') }}</a></li> -->
                     <li><a href="{{ url('/login') }}">{{ trans('adminlte_lang::message.login') }}</a></li>

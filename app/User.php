@@ -40,11 +40,13 @@ class User extends Authenticatable
 		'audio', 
 		'agendapriv', 
 		'note', 
+		'etat',
 		'noteconfidentielle',
 		'administrateur_id', 
 		'centreappel_id', 
 		'client_id', 
-		'societe2'
+		'societe2',
+        'plage_horaire'
     ];
 	
     /**
@@ -70,5 +72,10 @@ class User extends Authenticatable
 	{
 		return $this->belongsTo("Client", 'client_id');
 	}
+
+
+    public function days(){
+        return $this->belongsToMany('App\Day','workhours')->withPivot('start_time', 'end_time');
+    }
 
 }

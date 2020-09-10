@@ -14,13 +14,19 @@
 					<a href="{{ url('/home') }}"><b>Connexion</b></a>
 				</div><!-- /.login-logo -->
 
-			@if (count($errors) > 0)
+			@if (isset($error1))
 				<div class="alert alert-danger">
 					<strong>Whoops!</strong> {{ trans('adminlte_lang::message.someproblems') }}<br><br>
 					<ul>
-						@foreach ($errors->all() as $error)
-							<li>{{ $error }}</li>
-						@endforeach
+						<li> Ces inforamtions d'identification ne correspondent pas à nos enregistrements</li>
+					</ul>
+				</div>
+			@endif
+			@if (isset($errorInactif))
+				<div class="alert alert-danger">
+					<strong>Whoops!</strong> {{ trans('adminlte_lang::message.someproblems') }}<br><br>
+					<ul>
+						<li>Votre compte est désactivé, merci de contacter votre gestionnaire de compte</li>
 					</ul>
 				</div>
 			@endif
@@ -30,11 +36,11 @@
 					<input type="hidden" name="_token" value="{{ csrf_token() }}">
 					<div class="form-group has-feedback">
 						<!-- <input type="email" class="form-control" placeholder="{{ trans('adminlte_lang::message.email') }}" name="email"/> -->
-						<input class="form-control" placeholder="Adresse email" name="email"/>
+						<input class="form-control" placeholder="Adresse email" name="email" required/>
 						<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
 					</div>
 					<div class="form-group has-feedback">
-						<input type="password" class="form-control" placeholder="{{ trans('adminlte_lang::message.password') }}" name="password"/>
+						<input type="password" class="form-control" placeholder="{{ trans('adminlte_lang::message.password') }}" name="password" required/>
 						<span class="glyphicon glyphicon-lock form-control-feedback"></span>
 					</div>
 					<div class="row login">

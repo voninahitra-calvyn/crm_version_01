@@ -254,6 +254,8 @@
                                 <th class="filter"><b>Qualification</b></th>
 								<th class="filter date"><b>Date rendez-vous</b></th>
                                 <th class="filter"><b>Heure rendez-vous</b></th>
+                                <th class="filter"><b>Date de création</b></th>
+                                <th class="filter"><b>Dernière modification  </b></th>
                             </tr>
 							@elseif (Auth::user()->statut == 'Administrateur' || Auth::user()->statut == 'Staff')
                             <tr class="header">
@@ -304,6 +306,8 @@
                                 <th class="filter"><b>Rendez-vous pour</b></th>
 								<th class="filter exprtout hidden"><b>Note</b></th>
 								<th class="filter exprtout hidden"><b>Note du Staff</b></th>
+                                <th class="filter"><b>Date de création</b></th>
+                                <th class="filter"><b>Dernière modification </b></th>
                             </tr>
 							
 							@elseif (Auth::user()->statut == 'Responsable' || Auth::user()->statut == 'Commercial')
@@ -410,6 +414,8 @@
 									<td class="">@if($rdv->statut=='Rendez-vous relancer') Rendez-vous refusé / relancer @elseif($rdv->statut=='Rendez-vous refusé') Rendez-vous refusé / ne pas relancer @else {{ $rdv->statut }} @endif </td>
 									<td dateformat="DD MM YYYY" isType="date" class="filter">{{$rdv->date_rendezvous}}</td>
 									<td class="">{{$rdv->heure_rendezvous}}</td>
+                                    <td> {{$rdv->created_at->format('j-m-Y H:i')}}</td>
+                                    <td> {{$rdv->updated_at->format('j-m-Y H:i')}}</td>
 								</tr>
 							@elseif (Auth::user()->statut == 'Agent')
 								<tr class="@if ($rdv->user_id <> Auth::user()->_id) hidden @endif">
@@ -461,6 +467,8 @@
 									<td class="">@if($rdv->statut=='Rendez-vous relancer') Rendez-vous refusé / relancer @elseif($rdv->statut=='Rendez-vous refusé') Rendez-vous refusé / ne pas relancer @else {{ $rdv->statut }} @endif </td>
 									<td class="">{{$rdv->date_rendezvous}}</td>
 									<td class="">{{$rdv->heure_rendezvous}}</td>
+                                    <td> {{$rdv->created_at->format('j-m-Y H:i')}}</td>
+                                    <td> {{$rdv->updated_at->format('j-m-Y H:i')}}</td>
 								</tr>
 							@elseif (Auth::user()->statut == 'Responsable' || Auth::user()->statut == 'Commercial')
 							<!-- {!! $rdv !!} -->
@@ -533,7 +541,7 @@
 									</td>
 									<td class="noExl no-filter @if (Auth::user()->statut <> 'Administrateur' && Auth::user()->statut <> 'Staff') hidden @endif">
 										<!-- <form  action = "{{route('rdvs.destroy', [$rdv])}}" method="post" class=""> -->
-										<form action="{{route('rdvs.destroy', $rdv->id)}}" method="post" class="">
+										<form action="{{route('rdvs.destroy', $rdv->id)}}" method="post" class="" onsubmit="return confirmDelete();">
 											@csrf
 											@method('DELETE')
 											{{-- $rdv --}}
@@ -586,6 +594,8 @@
 									<td class="hidden exprtout">{{$rdv->note}}</td>
 									<td class="hidden exprtout">{{$rdv->notestaff}}</td>
 
+                                    <td> {{$rdv->created_at->format('j-m-Y H:i')}}</td>
+                                    <td> {{$rdv->updated_at->format('j-m-Y H:i')}}</td>
 								</tr>
 							@endif
 

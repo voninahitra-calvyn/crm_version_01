@@ -76,6 +76,7 @@
 					<th>Téléphone</th>
 					<th>Email</th>
 					<th>Service</th>
+					<th>Etat</th>
 				</tr>
 					</thead>
 					<tbody>
@@ -89,7 +90,7 @@
 						</form>
 					</td>
 					<td>
-						<form  action = "{{route('clients.destroy', $client->id)}}" method="post" class="">
+						<form  action = "{{route('clients.destroy', $client->id)}}" method="post" class="" onsubmit="return confirmDelete();">
 							@csrf
 							@method('DELETE')
 							<button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-trash"></i> Supprimer</button>
@@ -115,6 +116,7 @@
 					<td>{{$client->telephone}}</td>
 					<td>{{$client->email}}</td>
 					<td>@foreach($client->service as $service) <small class="label label-danger"><i class="fa fa-exchange"></i> {{$service}}</small>@endforeach</td>
+					<td>{{$client->etat ? $client->etat : 'Actif'}}</td>
 				</tr>
 				@endforeach	
 					</tbody>

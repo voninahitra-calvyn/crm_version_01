@@ -126,6 +126,22 @@
 						  <textarea class="form-control" rows="3" name="noteconfidentielle" id="noteconfidentielle" placeholder="Note confidentielle">{{ $centreappel->noteconfidentielle }}</textarea>
 						</div>
 					</div>
+                    @if (Auth::user()->statut == 'Administrateur')
+					<div class="form-group">
+						<label for="etat" class="col-sm-2 control-label">Etat : {{--$rdv->typerdv--}}</label>
+						<div class="col-sm-10">
+							<select class="form-control select2" name="etat" id="etat" style="width: 100%;" required>
+								@if($centreappel->etat == "Actif" or $centreappel->etat == '')
+									<option value="Actif">Activé</option>
+									<option value="Inactif">Désactivé</option>
+								@else
+									<option value="Inactif">Désactivé</option>
+									<option value="Actif">Activé</option>
+								@endif
+							</select>
+						</div>
+					</div>
+                    @endif
 					<div class="form-group">
 						<div class="col-sm-offset-1 col-sm-10">
 							<a href="javascript:history.go(-1)" class="btn btn-default">Annuler</a>

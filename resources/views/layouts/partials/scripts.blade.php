@@ -1486,6 +1486,64 @@ $("select[id='project_id2']").on('change', function()
 			
   });
 
+  function confirmDelete()
+  {
+      var x = confirm("êtes vous sûr de vouloir supprimer cet élément ?");
+      if (x)
+          return true;
+      else
+          return false;
+  }
+
+
+  document.write()
+  function showTime() {
+      var date = new Date();
+      var date=new Date()
+      var h=date.getHours();
+      if (h<10) {h = "0" + h}
+      var m=date.getMinutes();
+      if (m<10) {m = "0" + m}
+      var s=date.getSeconds();
+      if (s<10) {s = "0" + s}
+
+      document.getElementById('time').innerHTML = h+":"+m;
+  }
+  setInterval(showTime, 1000);
+
+  // on change resp/agent on select on  call center
+  $('#centreappel_societe_ch').change(function (e) {
+      var id = $(this).children(":selected").attr("data-centre");
+      $('#rdv_id_groupe').val(id);
+      console.log("call center id :" +id);
+      $.ajax({
+		  url: "/get-agent/"+id,
+		  method: "get",
+		  success: function (data) {
+		      var len = data.length;
+		    $("#centreappel_societe_agent").empty();
+		    for (var i =0; i<len; i++){
+		        var name = data[i]['nom'];
+		        var prenom = data[i]['prenom'];
+				var id_agent = data[i]['_id'];
+                $("#centreappel_societe_agent").append("<option value='"+id_agent+','+prenom+' '+name+"'>"+prenom+' '+name+"</option>");
+			}
+          }
+	  })
+  });
+  // on change campagne en cours
+  $('#campagne-client').change(function (e) {
+      var prenomCli = $(this).children(":selected").attr("data-campagne-client-prenom");
+      var nomCli = $(this).children(":selected").attr("data-campagne-client-nom");
+      var emailCli = $(this).children(":selected").attr("data-campagne-client-email");
+      var idCli = $(this).children(":selected").attr("data-campagne-client-id");
+      console.log('client id :' + idCli);
+      $('#client_id_camp').val(idCli);
+	  $('#client_prenompriv_camp').val(prenomCli);
+	  $('#client_nompriv_camp').val(nomCli);
+	  $('#client_emailpriv_camp').val(emailCli);
+  });
+
 </script>
 
 	
