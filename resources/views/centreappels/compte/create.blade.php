@@ -65,7 +65,7 @@
 						<div class="form-group">
 							<label for="email" class="col-sm-2 control-label">Email : </label>
 							<div class="col-sm-10">
-							  <input type="text" class="form-control" name="email" id="email" placeholder="Email" >
+							  <input type="text" class="form-control text-lowercase" name="email" id="email" placeholder="Email" >
 							</div>
 						</div>
 						<div class="form-group @if (Auth::user()->statut <> 'Administrateur'  && Auth::user()->statut <> 'Superviseur') hidden @endif">
@@ -100,13 +100,14 @@
 								  <textarea class="form-control" rows="3" name="note" id="note" placeholder="Note"></textarea>
 								</div>
 						</div>
-						<div class="form-group @if (Auth::user()->statut <> 'Administrateur' && Auth::user()->statut <> 'Staff') hidden @endif" id="">
+						@if (Auth::user()->statut == 'Staff')
+						<div class="form-group" id="">
 							<label for="noteconfidentielle" class="col-sm-2 control-label">Note confidentielle : </label>
 							<div class="col-sm-10">
 							  <textarea class="form-control" rows="3" name="noteconfidentielle" id="noteconfidentielle" placeholder="Note confidentielle"></textarea>
 							</div>
 						</div>
-
+						@endif
 						@if (Auth::user()->statut == 'Administrateur')
 							<div class="form-group">
 								<label for="etat" class="col-sm-2 control-label">Etat : </label>

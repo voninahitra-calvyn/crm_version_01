@@ -57,6 +57,9 @@
 						<th>Statut</th>
 						<th>Note</th>
 						<th>Etat</th>
+						<td>created at</td>
+						<td>updated at</td>
+
 					</tr>
 					</thead>
 					<tbody>
@@ -88,6 +91,8 @@
 						<td>{{$compte->statut}}</td>
 						<td>{{$compte->note}}</td>
 						<td>{{$compte->etat ? $compte->etat: 'Actif'}}</td>
+							<td>{{$compte->created_at->format("Y-m-d H:i:s")}}</td>
+							<td>{{$compte->updated_at->format("Y-m-d H:i:s")}}</td>
 					</tr>
 					@endforeach 
 					</tbody>

@@ -19,6 +19,11 @@
     <!-- Main content -->
     <section class="content">
 		<div class="box box-danger">
+			<div class="row-fluid"><br>
+				<div class="col-sm-12">
+					<img id="ok_imageadd" class="img-responsive img-circle image_form" src="{{ asset('/uploads/logo') }}/{{ $logo->logo }}" controls></img>
+				</div>
+			</div>
             <div class="box-header with-border">
 				<h3 class="box-title form">Modification compte</h3>
             </div>
@@ -76,7 +81,7 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
-						  <input type="text" class="form-control" name="email" id="email" placeholder="Email" value="{{ $compte->email }}">
+						  <input type="text" class="form-control text-lowercase" name="email" id="email" placeholder="Email" value="{{ $compte->email }}">
 						</div>
 					</div>
 					<div class="form-group @if (Auth::user()->statut <> 'Administrateur') hidden @endif" >
@@ -101,7 +106,7 @@
 							<div class="btn btn-primary btn-file  audio">
 								<div id ="btnajouter"><i class="fa fa-cloud-upload"></i> Ajouter </div>
 								<div id ="btnremplacer"><i class="fa fa-cloud-upload"></i> Remplacer </div>
-								<input type="file" id="audioInputfile" name="audioInputfile"   accept="audio/*"/>
+								<input type="file" id="audioInputfile" name="audioInputfile" accept="audio/*"/>
 							</div>
 							<input type="hidden" id="is_audio" name="is_audio" value="Non" />
 							<input type="hidden" id="hidden_audio" name="hidden_audio" value="{{ $compte->audio }}" />
@@ -117,12 +122,14 @@
 						  <textarea class="form-control" rows="3" name="note" id="note" placeholder="Note">{{ $compte->note }}</textarea>
 						</div>
 					</div>
-					<div class="form-group @if (Auth::user()->statut <> 'Administrateur' && Auth::user()->statut <> 'Staff') hidden @endif" id="">
+					@if (Auth::user()->statut == 'Staff')
+					<div class="form-group" id="">
 						<label for="noteconfidentielle" class="col-sm-2 control-label">Note confidentielle : </label>
 						<div class="col-sm-10">
 							<textarea class="form-control" rows="3" name="noteconfidentielle" id="noteconfidentielle" placeholder="Note confidentielle">{{ $compte->noteconfidentielle }}</textarea>
 						</div>
 					</div>
+					@endif
 					@if (Auth::user()->statut == 'Administrateur')
 						<div class="form-group">
 							<label for="etat" class="col-sm-2 control-label">Etat : </label>

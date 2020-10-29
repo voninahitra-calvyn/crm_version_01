@@ -14,7 +14,7 @@
 		</tr>
 		@elseif (Auth::user()->statut == 'Administrateur' || Auth::user()->statut == 'Staff')
 		<tr style="font-weight:bold;">
-			<th><b>Référence</b></th>
+			<th class="hidden"><b>Référence</b></th>
 			<th><b>Centre d’appels</b></th>
 			<th><b>Responsable/agent</b></th>
 			<th><b>Campagne en cours</b></th>
@@ -137,7 +137,7 @@
 			@endif
 		@elseif (Auth::user()->statut == 'Administrateur' || Auth::user()->statut == 'Staff')
         <tr>
-			<td class="">{{ substr($rdv->_id,3,-16) }}</td>
+			<td class="hidden">{{ substr($rdv->_id,3,-16) }}</td>
 			<td class="">{{$rdv->centreappel_societe}}</td>
 			<td class="">{{$rdv->user_prenom}} {{$rdv->user_nom}}</td>
 			<td class="">{{$rdv->cli}}</td>
@@ -151,8 +151,8 @@
 			<td class="">{{$rdv->mobile}}</td>
 			<td class="">{{$rdv->email}}</td>
 			<td class="">{{$rdv->activitesociete}}</td>
-			<td class="">{{$rdv->question_1}}</td>
-			<td class="">{{$rdv->question_2}}</td>
+			<td class="" >{{$rdv->question_1}}</td>
+			<td class="" >{{$rdv->question_2}}</td>
 			<td class="">{{$rdv->question_3}}</td>
 			<td class="">{{$rdv->question_4}}</td>
 			<td class="">{{$rdv->question_5}}</td>

@@ -68,11 +68,11 @@
 						<a href="{{ url('agendas') }}"><i class='fa fa-calendar'></i> <span>Agenda</span></a>
 					</li>
 					@if (Auth::user()->statut == 'Administrateur' || Auth::user()->statut == 'Staff')
-						<li @if (\Request::is('supports*')) class="active" @endif>
+						<li id="blink-sup1" @if (\Request::is('supports*')) class="active" @endif>
 							<a href="{{route('supports.index')}}"><i class='fa fa-users'></i> <span>Support client</span></a>
 						</li>
 					@else
-						<li @if (\Request::is('supports*')) class="active" @endif>
+						<li  id="blink-sup2" @if (\Request::is('supports*')) class="active" @endif>
 							<a href="{{route('supports.show', Auth::user()->_id)}}"><i class='fa fa-users'></i> <span>Support client</span></a>
 						</li>					
 					@endif

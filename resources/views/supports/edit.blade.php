@@ -69,7 +69,7 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="email" id="email" placeholder="Email" value={{ $staff->email }}>
+							<input type="text" class="form-control text-lowercase" name="email" id="email" placeholder="Email" value={{ $staff->email }}>
 						</div>
 					</div>
 					<div class="form-group @if (Auth::user()->statut <> 'Administrateur') hidden @endif" >

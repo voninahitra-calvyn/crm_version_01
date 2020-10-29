@@ -1,8 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use MongoDB\BSON\UTCDateTime;
 use PDF;
+use response;
+use DataTablesxx;
 // use App\Hashids\Hashids;
 // use Hashids\Hashids;
 
@@ -59,8 +63,453 @@ class RdvController extends Controller
 			print_r("succès requête ATRIBUER RDV");
 		*/
     }
-	
-    public function index()
+
+    public function formatDate($date,$isDtRdv=false){
+        $dt = null;
+        if ($date){
+            $dt = new Carbon($date);
+            $dt =  $dt->setTimezone('Europe/Paris');
+           if ($isDtRdv){
+               $dt = $dt->format("d-m-Y");
+           }else{
+               $dt = $dt->format("d-m-Y H:i");
+           }
+        }
+        return $dt;
+    }
+
+	public function datatable(Request $request){
+      $statusUser = auth()->user()->statut;
+      $id_centreappel = auth()->user()->centreappel_id;
+      $idUser = auth()->user()->_id;
+      $idClient = auth()->user()->client_id;
+      $isSearch = $request->get("is_date_search");
+      $dtStart = $request->get("start_date");
+      $dtEnd = $request->get("end_date");
+      $sttRdv = $request->get("statusrdv");
+      $whereSttType = null;
+      if ($sttRdv){
+          $sttRdv=explode(",",$sttRdv);
+          if (count($sttRdv)>1){
+              $whereSttType = 'typerdv';
+              $sttRdv = end($sttRdv);
+          }else{
+
+              $whereSttType = 'statut';
+              $sttRdv = end($sttRdv);
+          }
+      }
+
+        if ($isSearch=='yes'){
+          if(request()->ajax()){
+            if ($statusUser=="Administrateur" || $statusUser=="Staff"){
+                if ($sttRdv){
+                    return datatables()->of(Rdv::where($whereSttType, '=', $sttRdv)
+                        ->where(function($query) use ($dtStart, $dtEnd){
+                            $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                        })
+                        ->latest()
+                        ->get())
+                        ->addColumn('created', function ($data){
+                            $dt = $this->formatDate($data->created_at);
+                            return $dt;
+                        })
+                        ->addColumn('updated', function ($data){
+                            $dt = $this->formatDate($data->updated_at);
+                            return $dt;
+                        })
+                        ->addColumn('dt_rdv', function ($data){
+                            $dt = $this->formatDate($data->date_rendezvous,true);
+                            return $dt;
+                        })
+                        ->rawColumns(['created','updated','dt_rdv'])
+                        ->make(true)
+                        ;
+                }
+                return datatables()->of(Rdv::where(function($query) use ($dtStart, $dtEnd){
+                    $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                })
+                    ->latest()
+                    ->get())
+                    ->addColumn('created', function ($data){
+                        $dt = $this->formatDate($data->created_at);
+                        return $dt;
+                    })
+                    ->addColumn('updated', function ($data){
+                        $dt = $this->formatDate($data->updated_at);
+                        return $dt;
+                    })
+                    ->addColumn('dt_rdv', function ($data){
+                        $dt = $this->formatDate($data->date_rendezvous,true);
+                        return $dt;
+                    })
+                    ->rawColumns(['created','updated','dt_rdv'])
+                    ->make(true)
+                    ;
+            }
+            else if ($statusUser=="Superviseur" ){
+                if ($sttRdv){
+                    return datatables()->of(Rdv::where('id_groupe', '=', $id_centreappel)
+                        ->where($whereSttType, '=', $sttRdv)
+                        ->where(function($query) use ($dtStart, $dtEnd){
+                            $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                        })
+                        ->latest()
+                        ->get())
+                        ->addColumn('created', function ($data){
+                            $dt = $this->formatDate($data->created_at);
+                            return $dt;
+                        })
+                        ->addColumn('updated', function ($data){
+                            $dt = $this->formatDate($data->updated_at);
+                            return $dt;
+                        })
+                        ->addColumn('dt_rdv', function ($data){
+                            $dt = $this->formatDate($data->date_rendezvous,true);
+                            return $dt;
+                        })
+                        ->rawColumns(['created','updated','dt_rdv'])
+                        ->make(true)
+                        ;
+                }
+
+                return datatables()->of(Rdv::where('id_groupe', '=', $id_centreappel)
+                    ->where(function($query) use ($dtStart, $dtEnd){
+                    $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                })
+                    ->latest()
+                    ->get())
+                    ->addColumn('created', function ($data){
+                        $dt = $this->formatDate($data->created_at);
+                        return $dt;
+                    })
+                    ->addColumn('updated', function ($data){
+                        $dt = $this->formatDate($data->updated_at);
+                        return $dt;
+                    })
+                    ->addColumn('dt_rdv', function ($data){
+                        $dt = $this->formatDate($data->date_rendezvous,true);
+                        return $dt;
+                    })
+                    ->rawColumns(['created','updated','dt_rdv'])
+                    ->make(true)
+                    ;
+            }
+            }
+            else if ($statusUser=="Agent" ){
+                if ($sttRdv){
+                    return datatables()->of(Rdv::where('user_id', '=', $idUser)
+                        ->where($whereSttType, '=', $sttRdv)
+                        ->where(function($query) use ($dtStart, $dtEnd){
+                            $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                        })
+                        ->latest()
+                        ->get())
+                        ->addColumn('created', function ($data){
+                            $dt = $this->formatDate($data->created_at);
+                            return $dt;
+                        })
+                        ->addColumn('updated', function ($data){
+                            $dt = $this->formatDate($data->updated_at);
+                            return $dt;
+                        })
+                        ->addColumn('dt_rdv', function ($data){
+                            $dt = $this->formatDate($data->date_rendezvous,true);
+                            return $dt;
+                        })
+                        ->rawColumns(['created','updated','dt_rdv'])
+                        ->make(true)
+                        ;
+                }
+                return datatables()->of(Rdv::where('user_id', '=', $idUser)
+                ->where(function($query) use ($dtStart, $dtEnd){
+                    $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                })
+                    ->latest()
+                    ->get())
+                    ->addColumn('created', function ($data){
+                        $dt = $this->formatDate($data->created_at);
+                        return $dt;
+                    })
+                    ->addColumn('updated', function ($data){
+                        $dt = $this->formatDate($data->updated_at);
+                        return $dt;
+                    })
+                    ->addColumn('dt_rdv', function ($data){
+                        $dt = $this->formatDate($data->date_rendezvous,true);
+                        return $dt;
+                    })
+                    ->rawColumns(['created','updated','dt_rdv'])
+                    ->make(true)
+                    ;
+            }
+            else if ($statusUser=="Responsable" ){
+                if ($sttRdv){
+                    return datatables()->of(Rdv::where('client_id', '=', $idClient)
+                        ->where($whereSttType, '=', $sttRdv)
+                        ->where('statut', '<>', 'Rendez-vous brut')
+                        ->where('statut', '<>', 'Rendez-vous refusé')
+                        ->where('statut', '<>', 'Rendez-vous relancer')                        ->where(function($query) use ($dtStart, $dtEnd){
+                            $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                        })
+                        ->latest()
+                        ->get())
+                        ->addColumn('dt_rdv', function ($data){
+                            $dt = $this->formatDate($data->date_rendezvous,true);
+                            return $dt;
+                        })
+                        ->rawColumns(['dt_rdv'])
+                        ->make(true)
+                        ;
+                }
+                return datatables()->of(Rdv::where('client_id', '=', $idClient)
+                    ->where('statut', '<>', 'Rendez-vous brut')
+                    ->where('statut', '<>', 'Rendez-vous refusé')
+                    ->where('statut', '<>', 'Rendez-vous relancer')
+                ->where(function($query) use ($dtStart, $dtEnd){
+                    $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                })
+                    ->latest()
+                    ->get())
+                    ->addColumn('dt_rdv', function ($data){
+                        $dt = $this->formatDate($data->date_rendezvous,true);
+                        return $dt;
+                    })
+                    ->rawColumns(['dt_rdv'])
+                    ->make(true)
+                    ;
+            }
+            else if ($statusUser=="Commercial" ){
+                if ($sttRdv){
+                    return datatables()->of(Rdv::where('compte_id', '=', $idUser)
+                        ->where($whereSttType, '=', $sttRdv)
+                        ->where('statut', '<>', 'Rendez-vous brut')
+                        ->where('statut', '<>', 'Rendez-vous refusé')
+                        ->where('statut', '<>', 'Rendez-vous relancer')                        ->where(function($query) use ($dtStart, $dtEnd){
+                            $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                                ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                        })
+                        ->latest()
+                        ->get())
+                        ->addColumn('dt_rdv', function ($data){
+                            $dt = $this->formatDate($data->date_rendezvous,true);
+                            return $dt;
+                        })
+                        ->rawColumns(['dt_rdv'])
+                        ->make(true)
+                        ;
+                }
+                return datatables()->of(Rdv::where('compte_id', '=', $idUser)
+                    ->where('statut', '<>', 'Rendez-vous brut')
+                    ->where('statut', '<>', 'Rendez-vous refusé')
+                    ->where('statut', '<>', 'Rendez-vous relancer')
+                ->where(function($query) use ($dtStart, $dtEnd){
+                    $query->whereBetween('date_rendezvous', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('created_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)])
+                        ->orWhereBetween('updated_at', [Carbon::createFromDate($dtStart),Carbon::createFromDate($dtEnd)]);
+                })
+                    ->latest()
+                    ->get())
+                    ->addColumn('dt_rdv', function ($data){
+                        $dt = $this->formatDate($data->date_rendezvous,true);
+                        return $dt;
+                    })
+                    ->rawColumns(['dt_rdv'])
+                    ->make(true)
+                    ;
+            }
+
+          }
+      else{
+          if(request()->ajax()){
+              if ($statusUser=="Administrateur" || $statusUser=="Staff") {
+                  if ($sttRdv){
+               return datatables()->of(Rdv::where($whereSttType, '=', $sttRdv)
+                   ->latest()->get())
+                   ->addColumn('created', function ($data){
+                       $dt = $this->formatDate($data->created_at);
+                       return $dt;
+                   })
+                   ->addColumn('updated', function ($data){
+                       $dt = $this->formatDate($data->updated_at);
+                       return $dt;
+                   })
+                   ->addColumn('dt_rdv', function ($data){
+                       $dt = $this->formatDate($data->date_rendezvous,true);
+                       return $dt;
+                   })
+                   ->rawColumns(['created','updated','dt_rdv'])
+                   ->make(true);
+                  }
+                  else {
+                      return datatables()->of(Rdv::latest()->get())
+                          ->addColumn('created', function ($data){
+                              $dt = $this->formatDate($data->created_at);
+                              return $dt;
+                          })
+                          ->addColumn('updated', function ($data){
+                              $dt = $this->formatDate($data->updated_at);
+                              return $dt;
+                          })
+                          ->addColumn('dt_rdv', function ($data){
+                              $dt = $this->formatDate($data->date_rendezvous,true);
+                              return $dt;
+                          })
+                          ->rawColumns(['created','updated','dt_rdv'])
+                          ->make(true);
+                  }
+              }
+              else if ($statusUser=="Superviseur" ){
+                  if ($sttRdv){
+                 return datatables()->of( Rdv::where('id_groupe', '=', $id_centreappel)
+                      ->where($whereSttType, '=', $sttRdv)
+                      ->latest()->get())
+                     ->addColumn('created', function ($data){
+                         $dt = $this->formatDate($data->created_at);
+                         return $dt;
+                     })
+                     ->addColumn('updated', function ($data){
+                         $dt = $this->formatDate($data->updated_at);
+                         return $dt;
+                     })
+                     ->addColumn('dt_rdv', function ($data){
+                         $dt = $this->formatDate($data->date_rendezvous,true);
+                         return $dt;
+                     })
+                     ->rawColumns(['created','updated','dt_rdv'])
+                     ->make(true);
+                  }
+                     return datatables()->of( Rdv::where('id_groupe', '=', $id_centreappel)
+                     ->latest()->get())
+                         ->addColumn('created', function ($data){
+                             $dt = $this->formatDate($data->created_at);
+                             return $dt;
+                         })
+                         ->addColumn('updated', function ($data){
+                             $dt = $this->formatDate($data->updated_at);
+                             return $dt;
+                         })
+                         ->addColumn('dt_rdv', function ($data){
+                             $dt = $this->formatDate($data->date_rendezvous,true);
+                             return $dt;
+                         })
+                         ->rawColumns(['created','updated','dt_rdv'])
+
+                         ->make(true);
+              }
+              else if ($statusUser=="Agent" ){
+                  if ($sttRdv){
+                  return datatables()->of( Rdv::where('user_id', '=', $idUser)
+                        ->where($whereSttType, '=', $sttRdv)
+                      ->latest()->get())
+                      ->addColumn('created', function ($data){
+                          $dt = $this->formatDate($data->created_at);
+                          return $dt;
+                      })
+                      ->addColumn('updated', function ($data){
+                          $dt = $this->formatDate($data->updated_at);
+                          return $dt;
+                      })
+                      ->addColumn('dt_rdv', function ($data){
+                          $dt = $this->formatDate($data->date_rendezvous,true);
+                          return $dt;
+                      })
+                      ->rawColumns(['created','updated','dt_rdv'])
+                      ->make(true);
+                  }
+                  return datatables()->of( Rdv::where('user_id', '=', $idUser)
+                      ->latest()->get())
+                      ->addColumn('created', function ($data){
+                          $dt = $this->formatDate($data->created_at);
+                          return $dt;
+                      })
+                      ->addColumn('updated', function ($data){
+                          $dt = $this->formatDate($data->updated_at);
+                          return $dt;
+                      })
+                      ->addColumn('dt_rdv', function ($data){
+                          $dt = $this->formatDate($data->date_rendezvous,true);
+                          return $dt;
+                      })
+                      ->rawColumns(['created','updated','dt_rdv'])
+                      ->make(true);
+              }
+              else if ($statusUser=="Responsable" ){
+                  if ($sttRdv) {
+                      return datatables()->of(Rdv::where('client_id', '=', $idClient)
+                          ->where($whereSttType, '=', $sttRdv)
+                          ->where('statut', '<>', 'Rendez-vous brut')
+                          ->where('statut', '<>', 'Rendez-vous refusé')
+                          ->where('statut', '<>', 'Rendez-vous relancer')
+                          ->latest()->get())
+                          ->addColumn('dt_rdv', function ($data){
+                              $dt = $this->formatDate($data->date_rendezvous,true);
+                              return $dt;
+                          })
+                          ->rawColumns(['dt_rdv'])
+                          ->make(true);
+                  }
+                  return datatables()->of(Rdv::where('client_id', '=', $idClient)
+                      ->where('statut', '<>', 'Rendez-vous brut')
+                      ->where('statut', '<>', 'Rendez-vous refusé')
+                      ->where('statut', '<>', 'Rendez-vous relancer')
+                      ->latest()->get())
+                      ->addColumn('dt_rdv', function ($data){
+                          $dt = $this->formatDate($data->date_rendezvous,true);
+                          return $dt;
+                      })
+                      ->rawColumns(['dt_rdv'])
+                      ->make(true);
+
+              }else if ($statusUser=="Commercial" ){
+                  if ($sttRdv) {
+                      return datatables()->of(Rdv::where('compte_id', '=', $idUser)
+                          ->where($whereSttType, '=', $sttRdv)
+                          ->where('statut', '<>', 'Rendez-vous brut')
+                          ->where('statut', '<>', 'Rendez-vous refusé')
+                          ->where('statut', '<>', 'Rendez-vous relancer')
+                          ->latest()->get())
+                          ->addColumn('dt_rdv', function ($data){
+                              $dt = $this->formatDate($data->date_rendezvous,true);
+                              return $dt;
+                          })
+                          ->rawColumns(['dt_rdv'])
+                          ->make(true);
+                  }
+                  return datatables()->of(Rdv::where('compte_id', '=', $idUser)
+                      ->where('statut', '<>', 'Rendez-vous brut')
+                      ->where('statut', '<>', 'Rendez-vous refusé')
+                      ->where('statut', '<>', 'Rendez-vous relancer')
+                      ->latest()->get())
+                      ->addColumn('dt_rdv', function ($data){
+                          $dt = $this->formatDate($data->date_rendezvous,true);
+                          return $dt;
+                      })
+                      ->rawColumns(['dt_rdv'])
+                      ->make(true);
+              }
+          }
+      }
+
+	}
+     public function index()
     {
 		$comptes = User::where('statut', '=', 'Responsable')
 			->orWhere('statut', '=', 'Commercial')
@@ -87,16 +536,40 @@ class RdvController extends Controller
 		$statutrdv = 'Rendez-vous brut';
         return view('rdvs.client.index', compact('rendezvous'));  
     }
+
+
+     /*
+   *function to convert date rdv string to date mongo
+   */
+   public function convertStringDateToMongo(){
+      // convert date string to date
+       $rdv = Rdv::all();
+       foreach ($rdv as $item){
+     //     dd($item,$item->date_rendezvous,$item->updated_at,$item->date_rendezvous2->toDateTime());
+           $tz = new \DateTimeZone('Europe/Paris');
+           $dtRdv = $item->dt_rdv_origin;
+           //$orig_date = new \DateTime("$dtRdv 14:00:00");
+           $orig_date = \Carbon\Carbon::parse($dtRdv);
+           # or you can use any other way to construct with (int timestamp)
+           $mongo_date = new UTCDateTime($orig_date->getTimestamp()*1000);
+           $item->date_rendezvous = $orig_date;
+          // $item->dt_rdv_origin = $dtRdv;
+           $item->save();
+
+       }
+   }
+
 	
     public function tout()
     {
-		$typerdv="tout";
+        $typerdv="tout";
 		$statutrdv = '';	
 		$statut_user = auth()->user()->statut;
 		$id_user = auth()->user()->_id;
 		$id_centreappel = auth()->user()->centreappel_id;
 		$id_client = auth()->user()->client_id;
 		if ($statut_user == 'Superviseur'){
+
 			$rendezvous = Rdv::where('id_groupe', '=', $id_centreappel)
 				->get();
 			$rendezvoustout = Rdv::where('id_groupe', '=', $id_centreappel)
@@ -164,7 +637,8 @@ class RdvController extends Controller
 			 $devis = Rdv::where('id_groupe', '=', $id_centreappel)
 				->where('typerdv', '=', 'Demande de devis')
 				->get(); 
-		}else if ($statut_user == 'Agent'){
+		}
+		else if ($statut_user == 'Agent'){
 			$rendezvous = Rdv::where('user_id', '=', $id_user)
 				->get();
 			$rendezvoustout = Rdv::where('user_id', '=', $id_user)
@@ -232,7 +706,8 @@ class RdvController extends Controller
 			 $devis = Rdv::where('user_id', '=', $id_user)
 				->where('typerdv', '=', 'Demande de devis')
 				->get();
-		}else if ($statut_user == 'Responsable'){
+		}
+		else if ($statut_user == 'Responsable'){
 			$rendezvous = Rdv::where('client_id', '=', $id_client)
 				->where('statut', '<>', 'Rendez-vous brut')
 				->where('statut', '<>', 'Rendez-vous refusé')
@@ -325,7 +800,8 @@ class RdvController extends Controller
 				->where('statut', '<>', 'Rendez-vous brut')
 				->orWhere('statut', '<>', 'Rendez-vous refusé')
 				->get();
-		}else if ($statut_user == 'Commercial'){
+		}
+		else if ($statut_user == 'Commercial'){
 			$rendezvous = Rdv::where('compte_id', '=', $id_user)
 				->where('statut', '<>', 'Rendez-vous brut')
 				->where('statut', '<>', 'Rendez-vous refusé')
@@ -470,14 +946,14 @@ class RdvController extends Controller
 		
         // return view('rdvs.defiscalisation.index', compact('rdvsdefiscalisation','rdvsdefiscalisation','rdvsnettoyagepro','rdvsassurancepro','rdvsmutuellesantesenior','rdvsautre'));  
 		return view('rdvs.liste', compact('typerdv','rendezvoustout','statutrdv','rdvsbrut','rdvsrefuse','rdvsrelancer','rdvsenvoye','rdvsconfirme','rdvsannule','rdvsenattente','rdvsvalide','appelsbrut','appelsenvoye','devisbrut','devisenvoye','rendezvous','rdvsdefiscalisation','rdvsdefiscalisation','rdvsnettoyagepro','rdvsassurancepro','rdvsmutuellesantesenior','rdvsautre','appels','devis'));  
-    
-	}
+    	}
 		
 	
     public function brut() 
     {
 		$typerdv="";
 		$statutrdv = 'Rendez-vous brut';
+		$this->isUnreadRdv($statutrdv,false);
 		// $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
@@ -834,7 +1310,8 @@ class RdvController extends Controller
     public function relance()
     {
 		$typerdv="";
-		$statutrdv = 'Rendez-vous relancer';	
+		$statutrdv = 'Rendez-vous relancer';
+		$this->isUnreadRdv($statutrdv, false);
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -1215,8 +1692,10 @@ class RdvController extends Controller
     public function refuse()
     {
 		$typerdv="";
-		$statutrdv = 'Rendez-vous refusé';	
-		// $test = Auth::user('statut');
+		$statutrdv = 'Rendez-vous refusé';
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
 		$id_user = auth()->user()->_id;
@@ -1595,8 +2074,10 @@ class RdvController extends Controller
     public function envoye()
     {
 		$typerdv="";
-		$statutrdv = 'Rendez-vous envoyé';	
-		// $rendezvous = Rdv::all();
+		$statutrdv = 'Rendez-vous envoyé';
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -1970,14 +2451,14 @@ class RdvController extends Controller
 		
         // return view('rdvs.defiscalisation.index', compact('rdvsdefiscalisation','rdvsdefiscalisation','rdvsnettoyagepro','rdvsassurancepro','rdvsmutuellesantesenior','rdvsautre'));  
 		return view('rdvs.liste', compact('typerdv','rendezvoustout','statutrdv','rdvsbrut','rdvsrefuse','rdvsrelancer','rdvsenvoye','rdvsconfirme','rdvsannule','rdvsenattente','rdvsvalide','appelsbrut','appelsenvoye','devisbrut','devisenvoye','rendezvous','rdvsdefiscalisation','rdvsdefiscalisation','rdvsnettoyagepro','rdvsassurancepro','rdvsmutuellesantesenior','rdvsautre','appels','devis'));  
-    
 	}
 			
     public function confirme()
     {
 		$typerdv="";
 		$statutrdv = 'Rendez-vous confirmé';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -2358,7 +2839,9 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Rendez-vous annulé';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -2739,7 +3222,9 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Rendez-vous en attente';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -3120,7 +3605,9 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Rendez-vous validé';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -3501,7 +3988,8 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Réception d’appels brut';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -3894,7 +4382,8 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Réception d’appels envoyé';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -4257,22 +4746,17 @@ class RdvController extends Controller
 				->get();
 			$rdvsdefiscalisation = Rdv::where('typerdv', '=', 'Défiscalisation')
 				->get();
-				
 			 $rdvsnettoyagepro = Rdv::where('typerdv', '=', 'Nettoyage pro')
 				->get();
 				
 			 $rdvsassurancepro = Rdv::where('typerdv', '=', 'Assurance pro')
 				->get();
-				
 			 $rdvsmutuellesantesenior = Rdv::where('typerdv', '=', 'Mutuelle santé sénior')
 				->get();
-				
 			 $rdvsautre = Rdv::where('typerdv', '=', 'Autres')
 				->get(); 
-				
 			 $appels = Rdv::where('typerdv', '=', 'Réception d\'appels')
 				->get(); 
-				
 			 $devis = Rdv::where('typerdv', '=', 'Demande de devis')
 				->get(); 
 		}
@@ -4287,7 +4771,8 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Demande de devis brut';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -4680,7 +5165,9 @@ class RdvController extends Controller
     {
 		$typerdv="";
 		$statutrdv = 'Demande de devis envoyé';
-		// $rendezvous = Rdv::all();
+        $this->isUnreadRdv($statutrdv, false);
+
+        // $rendezvous = Rdv::all();
 		// $test = Auth::user('statut');
 		// $test = Auth::id();
 		$statut_user = auth()->user()->statut;
@@ -7789,8 +8276,7 @@ class RdvController extends Controller
 		}else{
 			$statut='Rendez-vous brut';
 		}
-
-
+		$this->isUnreadRdv($statut,true);
 	   // Rdv::create($request->all());
        $rdv = new Rdv([
 			'statut' => $statut,  
@@ -7849,11 +8335,35 @@ class RdvController extends Controller
        ]);
 	//	dd($rdv);
        $rdv->save();
-	   
+
+       //update rdv
+
        
        return redirect('/rendez-vous/tout')->with('success', 'Rdv enregistrée!');
     }
 
+    /**
+     * check to blink if new statut rdv
+     */
+    public function isUnreadRdv($statut, $isYes=true){
+        $isUnread=null;
+        if ($isYes){
+            $isUnread="oui";
+        }else{
+            $isUnread="non";
+        }
+            $blink = BlinkStatut::where('typerdv','=',$statut)->first();
+            if ($blink){
+                $blink->typerdv = $statut;
+                $blink->isunread = $isUnread;
+                $blink->save();
+            }else{
+                $blink = new BlinkStatut();
+                $blink->typerdv = $statut;
+                $blink->isunread = $isUnread;
+                $blink->save();
+            }
+    }
     /**
      * Display the specified resource.
      *
@@ -8005,13 +8515,12 @@ class RdvController extends Controller
 			$statut_user = auth()->user()->statut;
 			$rdv = Rdv::find($idencode);
             $idClient = $request->get('client_id');
-            $client = Client::findOrFail($idClient);
-           /* dd($client);*/
             // $compte = User::findOrFail($rdv->compte_id);
 			//*********** A COMMENTER APRES MODIF***************
 			$rdv->client_nompriv = $request->get('client_nompriv');
 			$rdv->client_prenompriv = $request->get('client_prenompriv');
             $rdv->client_id = $idClient;
+            $rdv->compte_id = $request->get('compte_client_id');
             // $rdv->user_nom = $request->get('user_nom');  //cocomodif
 			// $rdv->user_prenom = $request->get('user_prenom');  //cocomodif
 			// $rdv->statut = 'Rendez-vous brut';  
@@ -8023,10 +8532,12 @@ class RdvController extends Controller
 			//$rdv->responsableagent = $request->get('responsableagent');
 			// $rdv->typerdv = $request->get('typerdv');
 			if ($statut_user<>'Superviseur' && $statut_user<>'Agent'){
-				$rdv->statut = $request->get('statut'); 
-			}  
-			
-			$couleur_rdv = '#fff'; 
+                if ($rdv->statut != $request->get('statut')){
+                    $this->isUnreadRdv($request->get('statut'), true);
+                }
+                $rdv->statut = $request->get('statut');
+			}
+			$couleur_rdv = '#fff';
 			if ($request->get('statut')=='Rendez-vous envoyé'){
 				$couleur_rdv = '#999'; 
 			}elseif ($request->get('statut')=='Rendez-vous confirmé'){
@@ -8066,6 +8577,11 @@ class RdvController extends Controller
                 $rdv->typerdv = $request->get('typerdv');
             }
 
+            // Rdv::create($request->all());
+            $dtRdv =  $request->get('date_rendezvousedit');
+            //$orig_date = new \DateTime("$dtRdv 14:00:00");
+            $dtRdv = $dtRdv ? \Carbon\Carbon::parse($dtRdv):'';
+
 			$rdv->nom = $request->get('nom'); 
 			$rdv->prenom = $request->get('prenom'); 
 			$rdv->adresse = $request->get('adresse'); 
@@ -8085,7 +8601,7 @@ class RdvController extends Controller
 			$rdv->statut_matrimonial = $request->get('statut_matrimonial'); 
 			$rdv->composition_foyer = $request->get('composition_foyer');
 			$rdv->nomprenomcontact = $request->get('nomprenomcontact');
-			$rdv->date_rendezvous = $request->get('date_rendezvousedit'); 
+			$rdv->date_rendezvous = $dtRdv;
 			$rdv->heure_rendezvous = $request->get('heure_rendezvousedit'); 
 			$rdv->note = $request->get('note');
 			$rdv->noteconfidentielle = $request->get('noteconfidentielle');
@@ -8194,14 +8710,15 @@ class RdvController extends Controller
 		  $note = addslashes(trim(preg_replace('/\s\s+/', '', $request->get('note'))));
 		  
 		  $data = array('societe'=>$societe);
-			// Mail::send('rdvs.mail', $data, function($message) {
-		//******** CALENDRIER *********************************
-			$dateagenda = \Carbon\Carbon::parse($request->get('date_rendezvousedit').' '.$request->get('heure_rendezvousedit'));
-			$dateagenda = $dateagenda->format('yy-m-d H:i:s');
-			$dateagenda2 = \Carbon\Carbon::parse($request->get('date_rendezvousedit').' '.$request->get('heure_rendezvousedit'));
-			$dateagenda2 = $dateagenda2->add(90, 'minute')->format('yy-m-d H:i:s');
-			$titre_details = $client2.' / '.$nompers;
-			$note_details  = "";
+			// Mail::send('rdvs.mail', $data, function($message)
+            $dtrdvEdit =substr($request->get('date_rendezvousedit'),0,10);
+            //******** CALENDRIER *********************************
+            $dateagenda = \Carbon\Carbon::parse($dtrdvEdit.' '.$request->get('heure_rendezvousedit'));
+            $dateagenda = $dateagenda->format('yy-m-d H:i:s');
+            $dateagenda2 = \Carbon\Carbon::parse(substr($request->get('date_rendezvousedit'),0,10).' '.$request->get('heure_rendezvousedit'));
+            $dateagenda2 = $dateagenda2->add(90, 'minute')->format('yy-m-d H:i:s');
+            $titre_details = $client2.' / '.$nompers;
+            $note_details  = "";
 			// $note_details  = isset($centreappel_societeA)?'Centre d’appels : '.$centreappel_societe : '';
 			// $note_details .= isset($responsableagentA)?'Responsable/agent : '.$responsableagent.'<br/>' : '';
 			$note_details .= isset($statutA)?'Qualification : '.$statut.'<br/>' : '';
@@ -8316,7 +8833,7 @@ class RdvController extends Controller
 			$destinataireemailresponsable = $responsableMail->email;
 			// $destinataireemailresponsable = 'heryaddams@yahoo.fr';
 			$destinataireemailcli = $request->get('client_emailpriv');
-			$date_rendezvousedit_details = $request->get('date_rendezvousedit');
+			$date_rendezvousedit_details = $dtrdvEdit;
 			$heure_rendezvousedit_details = $request->get('heure_rendezvousedit');
 			$reference = substr($idencode,3,-16);
 				
@@ -8450,8 +8967,13 @@ class RdvController extends Controller
     public function exportexcel() 
     {
         $rdv = Rdv::all();
+        $tz = new \DateTimeZone('Europe/Paris');
+        $dt = new \DateTime();
+        $dt->setTimezone($tz);
+        $dt = $dt->format('YmdHis');
+        $filename = "Production$dt.xlsx";
         // return Excel::download(User::all(), 'rendezvous.xlsx');
-        return Excel::download(new RdvsExport, 'rendezvous.xlsx');
+        return Excel::download(new RdvsExport, $filename);
     }
 
     public function exportpdf($idencode) 

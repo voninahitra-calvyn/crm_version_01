@@ -15,6 +15,7 @@
         "hashids/hashids": "^3.0",
         "intervention/image": "^2.5",
         "jenssegers/mongodb": "^3.6",
+        "johngrogg/ics-parser": "^2.1",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "maatwebsite/excel": "^3.1",

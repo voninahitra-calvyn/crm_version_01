@@ -75,6 +75,20 @@ class CentreappelController extends Controller
        ]);
 	   
        $centreappel->save();
+
+       $callCenterEdit = Centreappel::findOrFail($centreappel->id);
+       $datenow=\Carbon\Carbon::now()->format('Y-m-d_H-i-s');
+        if($request->hasfile('logoCallCenter')){
+          $path = "uploads/logo/";
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            } 
+           $logo = $request->file('logoCallCenter');
+           $nomLogo = $centreappel->id.$datenow. '.' . $logo->getClientOriginalExtension();
+           $logo->move($path, $path . $nomLogo);  
+           $callCenterEdit->logo = $nomLogo; 	
+           $callCenterEdit->save();
+        }
        return redirect('/centreappels')->with('success', 'Centreappel enregistrée!');
     }
 
@@ -118,6 +132,31 @@ class CentreappelController extends Controller
         $request->validate([
           'societe'=>'required'
         ]);
+
+        $centre = Centreappel::findOrFail($idencode);
+            //Nom ancien audio
+        //dd($centre);
+       $nom_logo = $request->hidden_logo;
+       $nom_logo1 = $request->hidden_logo1;
+
+        $datelogo=\Carbon\Carbon::now()->format('Y-m-d_H-i-s');
+
+        //iploads logo
+       // $dateaudio=date('Y-m-d_H-i-s');
+        if($request->hasfile('logoInputfile')){
+
+         $logo = $request->file('logoInputfile');
+         $nom_logo = $idencode .$datelogo. '.' . $logo->getClientOriginalExtension();
+
+         if (file_exists('uploads/logo/' . $nom_logo1)){
+           if($nom_logo1<>'') unlink('uploads/logo/' . $nom_logo1);
+         }
+         $logo->move('uploads/logo/', '/uploads/logo/' . $nom_logo);
+         $centre->logo = $nom_logo;
+         $centre->save();
+         return redirect('/centreappels/'.$idencode.'/edit')->with('successAutreInfo', 'Logo modifiée avec succès.');
+       }
+
         $statut_user = auth()->user()->statut;
         if ($statut_user == 'Administrateur' || $statut_user == 'Staff'){
 		$user = User::where('centreappel_id',$idencode)->update(['etat'=>$request->get('etat')]);
@@ -134,7 +173,9 @@ class CentreappelController extends Controller
         $centreappel->effectif = $request->get('effectif');
         $centreappel->horaireprod = $request->get('horaireprod');
         $centreappel->campagnefavorite = $request->get('campagnefavorite');
-        $centreappel->noteconfidentielle = $request->get('noteconfidentielle');
+        if ($statut_user == 'Staff'){
+            $centreappel->noteconfidentielle = $request->get('noteconfidentielle');
+        }
         $centreappel->note = $request->get('note');
 
         if ($statut_user == 'Administrateur' || $statut_user == 'Staff') {
@@ -227,7 +268,8 @@ class CentreappelController extends Controller
         $compte = User::findOrFail($idencode);
 		// $centreappel = $hashidsCentreappel->encode($compte->centreappel_id);
 		$centreappel = $compte->centreappel_id;
-		return view('centreappels.compte.edit', compact('centreappel','compte'));
+        $logo = Centreappel::find($centreappel);
+        return view('centreappels.compte.edit', compact('centreappel','compte','logo'));
     }
 	
     public function updatecompte(Request $request, $idencode)
@@ -262,7 +304,9 @@ class CentreappelController extends Controller
 			if ($request->get('etat') || $request->get('etat')<>null){
                 $compte->etat = $request->get('etat');
             }
-			$compte->noteconfidentielle = $request->get('noteconfidentielle');
+            if (auth()->user()->statut == 'Staff') {
+                $compte->noteconfidentielle = $request->get('noteconfidentielle');
+            }
 			if (($request->get('password')<>'') OR ($request->get('password')<>null) ) {
 				$compte->password = bcrypt($request->get('password'));
 			}

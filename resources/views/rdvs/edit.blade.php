@@ -39,6 +39,7 @@
             <div class="box-body">
 				<!-- <input type="text" class="form-control " value="{{--$centreappels->societe--}}" name="centreappel_societe" id="centreappel_societe"> -->
 				<input type="text" class="form-control hidden" value="{{$rdv->id_groupe}}" name="id_groupe" id="rdv_id_groupe">
+				<input type="text" class="form-control hidden" value="{{$clientComResp->_id}}" name="compte_client_id" id="compte_client_id">
 				<input type="text" class="form-control hidden" value="{{$clientComResp->client_id}}" name="client_id" id="client_id_camp">
 				<input type="text" class="form-control hidden" value="{{$clientComResp->email}}" name="client_emailpriv" id="client_emailpriv_camp">
 				<input type="text" class="form-control hidden" value="{{$clientComResp->nom}}" name="client_nompriv" id="client_nompriv_camp">
@@ -70,13 +71,15 @@
 											data-campagne-client-id="{{$clientComResp->client_id}}"
 											data-campagne-client-prenom="{{$clientComResp->prenom}}"
 											data-campagne-client-email="{{$clientComResp->email}}"
+											data-campagne-compte-id="{{$clientComResp->_id}}"
 									>{{$rdv->cli }}</option>
 								@foreach($clientCom as $client_commercial)
 									<option value="{{$client_commercial->nom}} ({{$client_commercial->societe2}})"
 											data-campagne-client-nom="{{$client_commercial->nom}}"
 											data-campagne-client-id="{{$client_commercial->client_id}}"
 											data-campagne-client-prenom="{{$client_commercial->prenom}}"
-											data-campagne-client-email="{{$client_commercial->email}}">
+											data-campagne-client-email="{{$client_commercial->email}}"
+											data-campagne-compte-id="{{$client_commercial->_id}}">
 										{{$client_commercial->nom}} ({{$client_commercial->societe2}})</option>
 								@endforeach
 							</select>

@@ -69,7 +69,7 @@
                         </div>
 
                     <div class="form-group has-feedback">
-                        <input type="email" class="form-control" placeholder="{{ trans('message.email') }}" name="email" value="{{ old('email') }}"/>
+                        <input type="email" class="form-control text-lowercase" placeholder="{{ trans('message.email') }}" name="email" value="{{ old('email') }}"/>
                         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">

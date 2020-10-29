@@ -171,13 +171,15 @@
 								</div>
 							</div>      
 							@endif
-							@if (Auth::user()->statut == 'Responsable' || Auth::user()->statut == 'Commercial')
+							@if (Auth::user()->statut <> 'Responsable' && Auth::user()->statut <> 'Commercial')
 							<div class="form-group">
 								<label for="note" class="col-sm-2 control-label">Agenda public: </label>
 								<div class="col-sm-10 control-txt">
 									<a href="{{ url('/comresp_public')}}/{{$staff->_id}}" target="_blank" >{{ url('/comresp_public')}}/{{$staff->_id}}</a>
 								</div>
 							</div>
+							@endif
+							@if (Auth::user()->statut == 'Responsable' || Auth::user()->statut == 'Commercial')
 							<div class="form-group">
 								<label for="agendapriv" class="col-sm-2 control-label">Agenda privé: </label>
 								<div class="col-sm-10">

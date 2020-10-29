@@ -144,7 +144,7 @@
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
 							<!-- <input type="email" class="form-control" name="email" id="email" placeholder="Email" required> -->
-							<input type="text" class="form-control" value="NC" name="email" id="email" placeholder="Email">
+							<input type="text" class="form-control text-lowercase" value="NC" name="email" id="email" placeholder="Email">
 						</div>
 					</div>
                 </div>

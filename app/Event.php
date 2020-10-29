@@ -30,7 +30,8 @@ class Event extends Eloquent //MongoDB
 		'end',
 		'backgroundColor',
 		'borderColor', 
-		'googleuid'
+		'googleuid',
+        'client_id'
 	];
 	
     /**

@@ -23,9 +23,11 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form class="form-horizontal" method="post" action="{{ route('centreappels.update', [$centreappel]) }}">
-				<input type="hidden" name="_method" value="PUT">
-                 
+            <form class="form-horizontal" method="post" action="{{ route('centreappels.update', [$centreappel]) }}"
+				  enctype="multipart/form-data">
+						<input type="hidden" name="_method" value="GET">
+						@csrf
+						@method('PUT')
 				@if ($errors->any())
                     <div class="alert alert-danger" role="alert">
 						Veuillez s'il vous plait corriger les erreurs suivantes
@@ -54,6 +56,30 @@
 						  <input type="text" class="form-control" name="idcompte" id="idcompte" placeholder="ID" value="{{ substr($centreappel->_id,3,-16) }}" disabled>
 						</div>
 					</div>
+
+					<div class="form-group " id="">
+						<label for="logo" class="col-sm-2 control-label">logo : </label>
+						<div class="col-sm-10">
+
+							<div class="col-sm-2">
+									<img id="ok_image" class="img-responsive img-circle image_form" src="{{ asset('/uploads/logo') }}/{{ $centreappel->logo }}" controls></img>
+							</div>
+
+							<div class="btn btn-primary btn-file  logo">
+								<div id ="btnajouter"><i class="fa fa-cloud-upload"></i> Ajouter </div>
+								<div id ="btnremplacer"><i class="fa fa-cloud-upload"></i> Remplacer </div>
+								<input type="file" id="logoInputfile" name="logoInputfile"   accept="image/*"/>
+							</div>
+
+							<input type="hidden" id="is_logo" name="is_logo" value="Non" />
+							<input type="hidden" id="hidden_logo" name="hidden_logo" value="{{ $centreappel->logo }}" />
+							<input type="hidden" id="hidden_logo1" name="hidden_logo1" value="{{ $centreappel->logo }}" />
+							<button class="btn btn-primary btn-xs hidden" id="btnmodiflogo" name="btnmodiflogo" type="submit"><i class="fa fa-edit"></i> Modifier logo</button>
+							<button type="submit" id="btnmodifautreinfo" class="btn btn-success logo hidden"><i class="fa fa-check"></i> Valider</button>
+							<button id="btnsupprimer" type="submit" class="btn btn-danger logo"><i class="fa fa-trash"></i> Supprimer</button>
+						</div>
+					</div>
+
 					<div class="form-group">
 						<label for="societe" class="col-sm-2 control-label">Société : </label>
 						<div class="col-sm-10">
@@ -93,7 +119,7 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
-						  <input type="text" class="form-control" name="email" id="email" placeholder="Email" value="{{ $centreappel->email }}">
+						  <input type="text" class="form-control text-lowercase" name="email" id="email" placeholder="Email" value="{{ $centreappel->email }}">
 						</div>
 					</div>
 					<div class="form-group">
@@ -120,12 +146,14 @@
 						  <textarea class="form-control" rows="3" name="note" id="note" placeholder="Note">{{ $centreappel->note }}</textarea>
 						</div>
 					</div>
+					@if (Auth::user()->statut == 'Staff')
 					<div class="form-group">
 						<label for="noteconfidentielle" class="col-sm-2 control-label">Note confidentielle : </label>
 						<div class="col-sm-10">
 						  <textarea class="form-control" rows="3" name="noteconfidentielle" id="noteconfidentielle" placeholder="Note confidentielle">{{ $centreappel->noteconfidentielle }}</textarea>
 						</div>
 					</div>
+					@endif
                     @if (Auth::user()->statut == 'Administrateur')
 					<div class="form-group">
 						<label for="etat" class="col-sm-2 control-label">Etat : {{--$rdv->typerdv--}}</label>

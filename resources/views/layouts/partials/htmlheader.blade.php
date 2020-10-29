@@ -15,15 +15,52 @@
 
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="{{ asset('/css/bootstrap.min.css') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('/css/jquery.dataTables.min.css') }}">
+
     <!-- fullCalendar -->
     <link rel="stylesheet" href="{{ asset('/css/fullcalendar.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/css/fullcalendar.print.min.css') }}" media="print">
 
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-    <!-- excel-bootstrap-table-filter -->
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <!--excel-bootstrap-table-filter -->
     <link rel="stylesheet" href="{{ asset('/css/excel-bootstrap-table-filter-style.css') }}">
     <link rel="stylesheet" href="{{ asset('/css/jquery-fc.css') }}">
+    <style>
+    /* Blink for Webkit and others
+(Chrome, Safari, Firefox, IE, ...)
+*/
+
+@-webkit-keyframes blinker {
+  from {opacity: 1.0;}
+  to {opacity: 0.0;}
+}
+.blink{
+	text-decoration: blink;
+	-webkit-animation-name: blinker;
+	-webkit-animation-duration: 0.6s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:ease-in-out;
+	-webkit-animation-direction: alternate;
+}
+
+.ligne .btn-danger{
+    float: right;
+}
+.image_form{
+    z-index: 5;
+    height: 90px;
+    width: 90px;
+    border: 3px solid;
+    border-color: transparent;
+}
+         {{--   @if(isset($calendarclient))
+td.fc-widget-content{
+    background-color: #f39c12!important;
+}
+        @endif--}}
+    </style>
 
     <script>
 

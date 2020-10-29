@@ -16,7 +16,7 @@ class Rdv extends Eloquent //MongoDB
 	protected $connection = 'mongodb'; //MongoDB
 
 	protected $collection = 'rdvs'; //MongoDB
-	
+	protected $dates = ['created_at','updated_at','date_rendezvous','date_rendezvous2'];
     protected $fillable = [
 		'client_nompriv', 
 		'client_prenompriv', 

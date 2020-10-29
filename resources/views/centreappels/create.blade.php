@@ -23,7 +23,7 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form class="form-horizontal" method="post" action="{{ route('centreappels.store') }}">
+            <form class="form-horizontal" method="post" action="{{ route('centreappels.store') }}" enctype="multipart/form-data">
                  
 				@if ($errors->any())
                     <div class="alert alert-danger" role="alert">
@@ -46,15 +46,19 @@
 					<div class="form-group " id="">
 						<label for="logo-centre" class="col-sm-2 control-label">Logo : </label>
 						<div class="col-sm-8">
-							<input class="form-control col-sm-10" id="hidden_audio" name="hidden_audio" value="Aucun fichier sélectionné." disabled />
-						</div>
-						<div class="col-sm-2">
-							<div class="btn btn-danger btn-file  audio">
-								<input type="file" id="logo-centre" name="logoCentre" accept="image/*"/>Parcourir...
+							<div class="col-sm-3">
+								<img id="ok_imageadd" class="img-responsive img-circle image_form" src="" controls></img>
+							</div>
+							<div class="btn btn-danger btn-file  logo">
+								<input type="file" id="logo-centre" class="logoCallCenter" name="logoCallCenter" accept="image/*"/>Parcourir...
 							</div>
 						</div>
-					</div>
+						<div class="col-sm-2">
+							<input type="hidden"  id="is_logoadd" name="is_logoadd" value="Non" />
+							<input type="hidden"  id="hidden_logoadd" name="hidden_logoadd"  />
 
+						</div>
+					</div>
 					<div class="form-group">
 						<label for="societe" class="col-sm-2 control-label">Société : </label>
 						<div class="col-sm-10">
@@ -94,7 +98,7 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
-						  <input type="text" class="form-control" name="email" id="email"  placeholder="Email">
+						  <input type="text" class="form-control text-lowercase" name="email" id="email"  placeholder="Email">
 						</div>
 					</div>
 					<div class="form-group">
@@ -121,12 +125,14 @@
 						  <textarea class="form-control" rows="3" name="note" id="note" placeholder="Note"></textarea>
 						</div>
 					</div>
+					@if (Auth::user()->statut == 'Staff')
 					<div class="form-group">
 						<label for="noteconfidentielle" class="col-sm-2 control-label">Note confidentielle : </label>
 						<div class="col-sm-10">
 						  <textarea class="form-control" rows="3" name="noteconfidentielle" id="noteconfidentielle" placeholder="Note confidentielle"></textarea>
 						</div>
 					</div>
+					@endif
 					@if (Auth::user()->statut == 'Administrateur')
 					<div class="form-group">
 						<label for="etat" class="col-sm-2 control-label">Etat : </label>
@@ -152,12 +158,5 @@
 	
 		</div>      
     </section>
-@endsection
-@section('script')
-	<script>
-		$('#logo-centre').change(function () {
-			alert('on change');
-        });
-	</script>
 @endsection
 

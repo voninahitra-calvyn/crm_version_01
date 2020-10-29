@@ -140,7 +140,7 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-2 control-label">Email : </label>
 						<div class="col-sm-10">
-							<input type="email" class="form-control" name="email" id="email" placeholder="Email" value="{{ $rdv->email }}"  disabled>
+							<input type="email" class="form-control text-lowercase" name="email" id="email" placeholder="Email" value="{{ $rdv->email }}"  disabled>
 						</div>
 					</div>
 				</div>

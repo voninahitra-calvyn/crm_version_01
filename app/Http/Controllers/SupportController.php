@@ -47,6 +47,18 @@ class SupportController extends Controller
        return view('supports.index', compact('supportsall','supports','supportsdistinct','supportscreatedistinct'));
     }
 
+	public function getUnread(){
+		$supportsdistinct = Support:: orderBy('created_at', 'desc')->distinct('user_id')->select('repondu', 'vu', 'nomE', 'prenomE', 'statutE',  'nom', 'prenom', 'statut', 'message', 'created_at')
+		->groupBy('user_id')->get();
+		$unread = false;
+		foreach($supportsdistinct as $sp){
+			if($sp->vu=="Non"){
+				$unread = true;
+				break;
+			}
+		}	
+		return response()->json($unread);
+	}
     /**
      * Show the form for creating a new resource.
      *

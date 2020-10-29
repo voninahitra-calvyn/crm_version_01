@@ -21,7 +21,9 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form class="form-horizontal" method="post" action="{{ route('clients.update', [$client]) }}">
+            <form class="form-horizontal" method="post" action="{{ route('clients.update', [$client]) }}"  enctype="multipart/form-data">
+				@csrf
+				@method('PUT')
 				<input type="hidden" name="_method" value="PUT">
                  
 				@if ($errors->any())
@@ -57,6 +59,28 @@
 									<label for="nom" class="col-sm-2 control-label">ID : </label>
 									<div class="col-sm-10">
 									  <input type="text" class="form-control" name="idcompte" id="idcompte" placeholder="ID" value="{{ substr($client->_id,3,-16) }}" disabled>
+									</div>
+								</div>
+								<div class="form-group " id="">
+									<label for="logo" class="col-sm-2 control-label">logo : </label>
+									<div class="col-sm-10">
+
+										<div class="col-sm-2">
+											<img id="ok_imagecli" class="img-responsive img-circle image_form" src="{{ asset('/uploads/logo')}}/{{ $client->logo }}" controls></img>
+										</div>
+
+										<div class="btn btn-primary btn-file  logo">
+											<div id ="btnajouter"><i class="fa fa-cloud-upload"></i> Ajouter </div>
+											<div id ="btnremplacer"><i class="fa fa-cloud-upload"></i> Remplacer </div>
+											<input type="file" id="logoInputfileclient" name="logoInputfileclient"   accept="image/*"/>
+										</div>
+
+										<input type="hidden" id="is_logos" name="is_logos" value="Non" />
+										<input type="hidden" id="hidden_logoclit" name="hidden_logocli" value="{{$client->logo}}" />
+										<input type="hidden" id="hidden_logosclit1" name="hidden_logoscli1" value="{{$client->logo}}" />
+										<button class="btn btn-primary btn-xs hidden" id="btnmodiflogocli" name="btnmodiflogocli" type="submit"><i class="fa fa-edit"></i> Modifier logo</button>
+										<button type="submit" id="btnmodifautreinfo" class="btn btn-success logo hidden"><i class="fa fa-check"></i> Valider</button>
+										<button id="btnsupprimer" type="submit" class="btn btn-danger logo"><i class="fa fa-trash"></i> Supprimer</button>
 									</div>
 								</div>
 								<div class="form-group">
@@ -98,7 +122,7 @@
 								<div class="form-group">
 									<label for="email" class="col-sm-2 control-label">Email : </label>
 									<div class="col-sm-10">
-									  <input type="text" class="form-control" name="email" id="email" placeholder="Email" value="{{ $client->email }}">
+									  <input type="text" class="form-control text-lowercase" name="email" id="email" placeholder="Email" value="{{ $client->email }}">
 									</div>
 								</div>
 								<div class="form-group">

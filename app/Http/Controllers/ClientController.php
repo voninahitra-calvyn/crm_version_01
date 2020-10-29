@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Day;
+use App\Event;
 use Illuminate\Support\Facades\Crypt;
 // use App\Hashids\Hashids;
 use Hashids\Hashids;
@@ -18,6 +19,8 @@ use App\User;
 
 class ClientController extends Controller
 {
+    private $datecalendar = [];
+
     /**
      * Display a listing of the resource.
      *
@@ -73,7 +76,21 @@ class ClientController extends Controller
        ]);
 	   
        $client->save();
-       return redirect('/clients')->with('success', 'Client enregistrée!');
+        $clientEdit = Client::findOrFail($client->id);
+        $datenow=\Carbon\Carbon::now()->format('Y-m-d_H-i-s');
+        if($request->hasfile('logoClient')) {
+
+            $path = "uploads/logo/";
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+            $logo = $request->file('logoClient');
+            $nomLogo = $client->id . $datenow . '.' . $logo->getClientOriginalExtension();
+            $logo->move($path, $path . $nomLogo);
+            $clientEdit->logo = $nomLogo;
+            $clientEdit->save();
+        }
+            return redirect('/clients')->with('success', 'Client enregistrée!');
     }
 
     /**
@@ -116,6 +133,29 @@ class ClientController extends Controller
         $request->validate([
           'societe'=>'required'
         ]);
+
+        $centre = Client::findOrFail($idencode);
+
+        //Nom ancien audio
+        $nom_logo = $request->hidden_logo;
+        $nom_logo1 = $request->hidden_logo1;
+        $datelogo=\Carbon\Carbon::now()->format('Y-m-d_H-i-s');
+        // $dateaudio=date('Y-m-d_H-i-s');
+
+        if($request->hasfile('logoInputfileclient')){
+            $logo = $request->file('logoInputfileclient');
+            $centre->note = $request->get('note');
+            $centre->noteconfidentielle = $request->get('noteconfidentielle');
+            $nom_logo = $idencode .$datelogo. '.' . $logo->getClientOriginalExtension();
+
+            if (file_exists('uploads/logo/' . $nom_logo1)){
+                if($nom_logo1<>'') unlink('uploads/logo/' . $nom_logo1);
+            }
+            $logo->move('uploads/logo/', '/uploads/logo/' . $nom_logo);
+            $centre->logo = $nom_logo;
+            $centre->save();
+            return redirect('/clients/'.$idencode.'/edit')->with('successAutreInfo', 'Logo modifiée avec succès.');
+        }
 
         $statut_user = auth()->user()->statut;
         if ($statut_user == 'Administrateur' || $statut_user == 'Staff'){
@@ -201,7 +241,7 @@ class ClientController extends Controller
            'prenom' => $request->get('prenom'),        
            'telephone' => $request->get('telephone'),
            'email' => $request->get('email'),      
-			'password' => bcrypt($request->get('password')),   
+			'password' => bcrypt($request->get('password')),
            'statut' => $request->get('statut'),      
            'note' => $request->get('note'),
            'etat' => $request->get('etat')?$request->get('etat'):'Actif'
@@ -224,8 +264,8 @@ class ClientController extends Controller
         $cli = Client::findOrFail($client);
 		$campagne = $cli->societe2;
 		$index = 1;
-		$days = Day::all();
-		return view('clients.compte.edit', compact('client','compte','campagne','index','days'));
+        $logo = Client::find($client);
+        return view('clients.compte.edit', compact('client','compte','campagne','index','logo'));
     }
 
     public function rendezvous($idencode)
@@ -259,7 +299,89 @@ class ClientController extends Controller
 		return view('rdvs.create', compact('client','compte','nomsocieteCentreappels'));
 		// return view('rdvs.defiscalisation.create', compact('compte'));
     }
-	
+    
+    
+    public function plageHoraire($request){
+        $plageHoraire = [
+            "lundi"=>[],
+            "mardi"=>[],
+            "mercredi"=>[],
+            "jeudi"=>[],
+            "vendredi"=>[],
+            "samedi"=>[],
+            "dimanche"=>[],
+        ];
+        $start = $request->get('start');
+        $end = $request->get('end');
+        if(isset($start['lundi'])){
+            $combine = array_combine($start['lundi'], $end['lundi']);
+
+            foreach($combine as $key=>$val){
+                $plageHoraire['lundi'][] = [$key,$val]; 
+            } 
+        }
+
+        if(isset($start['mardi'])){
+            $combine = array_combine($start['mardi'], $end['mardi']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['mardi'][] = [$key,$val]; 
+            } 
+        }
+
+        if(isset($start['mercredi'])){
+            $combine = array_combine($start['mercredi'], $end['mercredi']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['mercredi'][] = [$key,$val]; 
+            } 
+        }
+        if(isset($start['jeudi'])){
+            $combine = array_combine($start['jeudi'], $end['jeudi']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['jeudi'][] = [$key,$val]; 
+            } 
+        }
+        if(isset($start['vendredi'])){
+            $combine = array_combine($start['vendredi'], $end['vendredi']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['vendredi'][] = [$key,$val]; 
+            } 
+        }
+        if(isset($start['samedi'])){
+            $combine = array_combine($start['samedi'], $end['samedi']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['samedi'][] = [$key,$val]; 
+            } 
+        }
+        if(isset($start['dimanche'])){
+            $combine = array_combine($start['dimanche'], $end['dimanche']);
+            foreach($combine as $key=>$val){
+                $plageHoraire['dimanche'][] = [$key,$val]; 
+            } 
+        }
+
+        return $plageHoraire;
+    }
+
+    public function parseDayToDate(){
+        $list=array();
+        $month = 12;
+        $year = 2020;
+        for ($i=1; $i<=$month; $i++){
+
+            for($d=1; $d<=31; $d++)
+            {
+                $time=mktime(12, 0, 0, $i, $d, $year);
+                if (date('m', $time)==$i)
+                    $list[]=date('Y-m-d-D', $time);
+            }
+            echo "<pre>";
+            print_r($list);
+            echo "</pre>";
+        }
+
+        //$dayLabel = substr("2020-01-19-Sun",11);
+    }
+
     public function updatecompte(Request $request, $idencode)
     {
 		
@@ -269,7 +391,7 @@ class ClientController extends Controller
         // $user = User::find($idencode);
 		// $hashidsClient = new Hashids('LSPlusaltClient', 7);
 		// $idEncodeClient = $hashidsClient->encode($user->client_id);
-		
+	// 	dd($request->all());
         $compte = User::find($idencode);
         $compte->societe2 = $request->get('campagne');
         $compte->nom = $request->get('nom');
@@ -277,6 +399,8 @@ class ClientController extends Controller
         $compte->telephone = $request->get('telephone');
         $compte->email = $request->get('email');
         $compte->agendapriv = $request->get('agendapriv');
+        $compte->agendaoutlook = $request->get('agendaoutlook');
+        
 		if (($request->get('password')<>'') OR ($request->get('password')<>null) ) {
 			$compte->password = bcrypt($request->get('password'));
 		}	
@@ -285,98 +409,25 @@ class ClientController extends Controller
         if ($request->get('etat')) {
             $compte->etat = $request->get('etat');
         }
-        $compte->plage_horaire = [
-            'Lundi'=>['plage1'=>['18:00', '20:00']],
-            'Mardi'=>['plage1'=>['18:00', '20:00'], 'plage2'=>['21:00', '00:23']],
-            'Mercredi'=>['plage1'=>['18:00', '20:00']]
-        ];
+
+        $plageHoraire = $this->plageHoraire($request);
+        $compte->plage_horaire = $plageHoraire;
+
+        //parse agenda prive
+        $perseAgendaPrive = Service::parseAgendaPrive($compte);
+        $perseAgendaAdmin = [];
+
+        $statut_user = auth()->user()->statut;
+        if ($statut_user == 'Administrateur' || $statut_user == 'Staff'){
+            $compte->agendaprivadmin = $request->get('agendaprivadmin');
+            $perseAgendaAdmin = Service::parseAgendaAdmin($compte);
+        }
+        $hoursPlage = $compte->plage_horaire;
+        $pAgPlg =  Service::parseAgendaPlage($hoursPlage);
+
+        $this->datecalendar = array_merge($pAgPlg,$perseAgendaPrive,$perseAgendaAdmin);
+        $compte->agendapub = $this->datecalendar;
         $compte->save();
- 
-		
-		/************** AJOUT EVENNEMENT CALENDRIER ****************************/
-/* 		
-		try {
-			// $adresse = $request->get('agendapriv');
-			$adresse = $staffs->agendapriv;
-			// $ical = new ICal('https://calendar.google.com/calendar/ical/f26nr9uphsj19d8hg2v0f215fs%40group.calendar.google.com/private-d1d5c48d0d7033ab02afeba4f19991cb/basic.ics', array(
-			// $ical = new ICal('https://calendar.google.com/calendar/ical/contact%40confirmationrdv.com/public/basic.ics', array(
-			$ical = new ICal($adresse, array(
-			// $ical = new ICal('basicraoult.ics', array(
-			// $ical = new ICal('basictest.ics', array(
-				'defaultSpan'                 => 2,     // Default value
-				// 'defaultTimeZone'             => 'UTC',
-				'defaultTimeZone'             => 'UTC',
-				'defaultWeekStart'            => 'MO',  // Default value
-				'disableCharacterReplacement' => false, // Default value
-				'filterDaysAfter'             => null,  // Default value
-				'filterDaysBefore'            => null,  // Default value
-				'skipRecurrence'              => false, // Default value
-			));
-			$events = $ical->events();
-			  // Comparer les valeurs
-			  // $cmp = array_diff($tab1, $tab2);
-			  // print_r($cmp);
-			$evenement3 = Event::all();
-			foreach ($evenement3 as $evnmt){
-				$calcrmetier[] = $evnmt->googleuid; 
-			}
-			foreach ($events as $event){
-				$calgoogle[] = $event->dtstart_array[3].'_'.$event->uid;
-				$evenement = Event::where('googleuid', '=', $event->dtstart_array[3].'_'.$event->uid)->first();
-				// var_dump($evenement);
-				if(isset($evenement)){
-					$dtstart = $ical->iCalDateToDateTime($event->dtstart_array[3]);
-					$dtstart = \Carbon\Carbon::parse($dtstart);
-					$dtend = $ical->iCalDateToDateTime($event->dtend_array[3]);
-					$dtend = \Carbon\Carbon::parse($dtend);
-					$evenement->client_priv = $staffs->prenom.' '.$staffs->nom;
-					// $evenement->title = 'indisponible';
-					$evenement->title = $event->summary;
-					// $evenement->title = 'updt_'.$event->dtstart_array[3].'_'.$event->uid;
-					$evenement->start = $dtstart->add(120, 'minute')->format('Y-m-d H:i:s');
-					$evenement->end = $dtend->add(120, 'minute')->format('Y-m-d H:i:s');
-					$evenement->save();
-				}else{
-					
-					$dtstart = $ical->iCalDateToDateTime($event->dtstart_array[3]);
-					$dtstart = \Carbon\Carbon::parse($dtstart);
-					$dtend = $ical->iCalDateToDateTime($event->dtend_array[3]);
-					$dtend = \Carbon\Carbon::parse($dtend);
-					$agenda = new Event([
-						// 'googleuid' => $event->uid,
-						'googleuid' => $event->dtstart_array[3].'_'.$event->uid,
-						'client_priv' => $staffs->prenom.' '.$staffs->nom,
-						// 'title' => 'indisponible',  
-						'title' => $event->summary,  
-						// 'title' => 'add_'.$event->dtstart_array[3].'_'.$event->uid,  
-						'start' => $dtstart->add(120, 'minute')->format('Y-m-d H:i:s'),  
-						'end' => $dtend->add(120, 'minute')->format('Y-m-d H:i:s'),
-						'backgroundColor' => '#f39c12',  
-						'borderColor' => '#f39c12'		
-				   ]);
-					$agenda->save();
-				}
-			
-			}
-			
-			// print_r($calgoogle);
-			// print_r($calcrmetier);
-			  // Comparer les valeurs
-			  // $cmp = array_diff($calgoogle, $calcrmetier);
-			  $cmp = array_diff($calcrmetier, $calgoogle);
-			  // $cmp = array_diff_assoc($calgoogle, $calcrmetier);
-			  // $cmp = array_diff_assoc($calcrmetier, $calgoogle);
-			  foreach($cmp as $c){
-				  $evenementsup = Event::where('googleuid', '=', $c);
-				  $evenementsup->delete();
-				  // echo $c.'<br/>';
-			  }
-			  // print_r($cmp);
-			
-		} catch (\Exception $e) {
-			die($e);
-		}
- */
         
 		return redirect('/clients/'.$compte->client_id.'/compte')->with('success', 'Compte modifié!');
     }

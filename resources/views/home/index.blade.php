@@ -98,3 +98,24 @@
 		</form>
 
 @endsection
+@section('scripts')
+	<script>
+
+
+        document.write()
+        function showTime() {
+            var date = new Date();
+            var date=new Date()
+            var h=date.getHours();
+            if (h<10) {h = "0" + h}
+            var m=date.getMinutes();
+            if (m<10) {m = "0" + m}
+            var s=date.getSeconds();
+            if (s<10) {s = "0" + s}
+
+            document.getElementById('time').innerHTML = h+":"+m;
+        }
+        setInterval(showTime, 1000);
+	</script>
+
+	@endsection

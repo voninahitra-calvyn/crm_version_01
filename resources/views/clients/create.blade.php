@@ -21,7 +21,7 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form class="form-horizontal" method="post" action="{{ route('clients.store') }}">
+            <form class="form-horizontal" method="post" action="{{ route('clients.store') }}" enctype="multipart/form-data">
                  
 				@if ($errors->any())
                     <div class="alert alert-danger" role="alert">
@@ -48,6 +48,22 @@
 						</ul>
 						<div class="tab-content">
 							<div class="active tab-pane" id="condidentielles">
+								<div class="form-group " id="">
+									<label for="logo-centre" class="col-sm-2 control-label">Logo : </label>
+									<div class="col-sm-8">
+										<div class="col-sm-3">
+											<img id="ok_imageclient" class="img-responsive img-circle image_form"  src="" controls></img>
+										</div>
+										<div class="btn btn-danger btn-file  logo">
+											<input type="file" id="logo-centreclient" class="logoClient" name="logoClient" accept="image/*"/>Parcourir...
+										</div>
+									</div>
+									<div class="col-sm-2">
+										<input type="hidden"  id="is_logoclient" name="is_logoclient" value="Non" />
+										<input type="hidden"  id="hidden_logoclient" name="hidden_logoclient"  />
+
+									</div>
+								</div>
 								<div class="form-group">
 									<label for="societe" class="col-sm-2 control-label">Société : </label>
 									<div class="col-sm-10">
@@ -87,7 +103,7 @@
 								<div class="form-group">
 									<label for="email" class="col-sm-2 control-label">Email : </label>
 									<div class="col-sm-10">
-									  <input type="text" class="form-control" name="email" id="email"  placeholder="Email">
+									  <input type="text" class="form-control text-lowercase" name="email" id="email"  placeholder="Email">
 									</div>
 								</div>
 								<div class="form-group">

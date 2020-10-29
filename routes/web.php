@@ -15,6 +15,8 @@ Route::get('/', function () {
     return view('auth/connexion');
     // return view('home');
 });
+Route::get('/get-agent/{id}', 'RdvController@getAgent');
+Route::get('/get-unread', 'SupportController@getUnread');
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('centreappels', 'CentreappelController');
@@ -53,12 +55,16 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('events', 'EventController@index');
 	Route::resource('rdvs', 'RdvController');
+	Route::get('rdv/{id}/edit','RdvController@edit')->name('rdv.edit');
+	Route::get('rdv/{id}/destroy','RdvController@destroy')->name('rdv.destroy');
+
 	Route::name('rdvs.')->group(function () {
 		Route::get('rendez-vous/{id}/client','RdvController@client')->name('client');
 		Route::get('rendez-vous/contester/{id}','RdvController@contester')->name('contester');
 		Route::get('rendez-vous/details/{id}','RdvController@details')->name('details');
 		Route::get('rendez-vous/contestation/{id}','RdvController@contestation')->name('contestation');
 		Route::get('rendez-vous/tout','RdvController@tout')->name('tout');
+		Route::post('rendez-vous/datatable','RdvController@datatable')->name('datatable');
 		Route::get('rendez-vous/brut','RdvController@brut')->name('brut');
 		Route::get('rendez-vous/relance','RdvController@relance')->name('relance');
 		Route::get('rendez-vous/refuse','RdvController@refuse')->name('refuse');
@@ -91,6 +97,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('rdvs/{id}/edit','RdvController@modifaudio')->name('modifaudio');
 		Route::get('rendez-vous/requete','RdvController@requete')->name('requete');
 	});
+	Route::get('rendez-vous/rechercherdv','RdvController@rechercherdv')->name('rechercherdv');
 	Route::resource('agendas', 'AgendaController');
 	Route::name('agendas.')->group(function () {
 		// Route::get('agendas/{id}','AgendaController@update')->name('update');
@@ -118,5 +125,7 @@ Route::name('agendas.')->group(function () {
 	Route::get('admnstaff/{id}','AgendaController@agenda2')->name('agenda2');
 	Route::get('comresp/{id}','AgendaController@agenda3')->name('agenda3');
 	Route::get('comresp_public/{id}','AgendaController@comresp_public')->name('comresp_public');
+    Route::get('get_agenda_client/{id}','AgendaController@getAgendaByClient')->name('get_agenda_client');
+	//getAgendaByClient
 });
 
